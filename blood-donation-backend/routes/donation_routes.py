@@ -17,16 +17,18 @@ def create_donation():
 
     donation = Donation(
         donor_id=data["donor_id"],
-        blood_request_id=data["blood_request_id"]
+        hospital=data["hospital"],
+        blood_group=data["blood_group"],
+        status="Completed"
     )
 
     db.session.add(donation)
     db.session.commit()
 
     return jsonify({
-        "message": "Donation recorded successfully"
+        "message": "Donation recorded successfully",
+        "donation": donation.to_dict()
     }), 201
-
 
 
 @donation_bp.route("/", methods=["GET"])
@@ -40,6 +42,20 @@ def get_donations():
     ]), 200
 
 
+@donation_bp.route("/<int:id>", methods=["GET"])
+def get_donation(id):
+
+    donation = Donation.query.get(id)
+
+    if not donation:
+        return jsonify({
+            "message": "Donation not found"
+        }), 404
+
+    return jsonify(
+        donation.to_dict()
+    ), 200
+
 
 @donation_bp.route("/<int:id>", methods=["PUT"])
 def update_donation(id):
@@ -51,7 +67,6 @@ def update_donation(id):
             "message": "Donation not found"
         }), 404
 
-
     data = request.get_json()
 
     donation.status = data.get(
@@ -62,5 +77,24 @@ def update_donation(id):
     db.session.commit()
 
     return jsonify({
-        "message": "Donation status updated"
+        "message": "Donation updated successfully",
+        "donation": donation.to_dict()
+    }), 200
+
+
+@donation_bp.route("/<int:id>", methods=["DELETE"])
+def delete_donation(id):
+
+    donation = Donation.query.get(id)
+
+    if not donation:
+        return jsonify({
+            "message": "Donation not found"
+        }), 404
+
+    db.session.delete(donation)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Donation deleted successfully"
     }), 200

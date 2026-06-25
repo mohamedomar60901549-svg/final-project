@@ -13,6 +13,7 @@ import DonorLayout from "../layouts/DonorLayout";
 import DonorDashboard from "../pages/donor/DonorDashboard";
 import DonorProfile from "../pages/donor/DonorProfile";
 import DonationHistory from "../pages/donor/DonationHistory";
+import DonateBlood from "../pages/donor/DonateBlood";
 
 
 // Patient
@@ -90,7 +91,13 @@ function AppRoutes() {
         <Route
           path="history"
           element={<DonationHistory />}
-        />
+          />
+
+        <Route
+            path="donate"
+            element={<DonateBlood />}
+          />
+
 
       </Route>
 

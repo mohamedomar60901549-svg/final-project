@@ -5,18 +5,15 @@ class User(db.Model):
 
     __tablename__ = "users"
 
-
     id = db.Column(
         db.Integer,
         primary_key=True
     )
 
-
     full_name = db.Column(
         db.String(100),
         nullable=False
     )
-
 
     email = db.Column(
         db.String(120),
@@ -24,35 +21,33 @@ class User(db.Model):
         nullable=False
     )
 
-
     password = db.Column(
         db.String(255),
         nullable=False
     )
-
 
     role = db.Column(
         db.String(50),
         default="donor"
     )
 
-
     blood_group = db.Column(
         db.String(10)
     )
 
-
     location = db.Column(
         db.String(100)
     )
-
 
     availability = db.Column(
         db.String(50),
         default="Available"
     )
 
-
+    last_donation_date = db.Column(
+        db.Date,
+        nullable=True
+    )
 
     def to_dict(self):
 
@@ -70,6 +65,12 @@ class User(db.Model):
 
             "location": self.location,
 
-            "availability": self.availability
+            "availability": self.availability,
+
+            "last_donation_date": (
+                self.last_donation_date.isoformat()
+                if self.last_donation_date
+                else None
+            )
 
         }
