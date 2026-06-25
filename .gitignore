@@ -1,0 +1,23 @@
+# Database
+*.db
+instance/
+**/instance/
+
+# Python
+**/venv/
+**/__pycache__/
+*.pyc
+
+# React
+**/node_modules/
+**/dist/
+
+# Environment variables
+.env
+**/.env
+
+# VS Code
+.vscode/
+
+# Misc
+.DS_Store
