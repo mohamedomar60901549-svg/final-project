@@ -5,20 +5,33 @@ function AdminDashboard() {
 
 
   const [stats, setStats] = useState({
+
     total_users: 0,
+
     total_donors: 0,
+
     total_patients: 0
+
   });
 
 
+
   const [requests, setRequests] = useState([]);
+
+
+  const [availableDonors, setAvailableDonors] = useState(0);
+
 
 
 
   useEffect(() => {
 
 
-    fetch("http://127.0.0.1:5000/api/auth/stats")
+    // Get users statistics
+
+    fetch(
+      "http://127.0.0.1:5000/api/auth/stats"
+    )
 
       .then(res => res.json())
 
@@ -26,17 +39,71 @@ function AdminDashboard() {
 
         setStats(data);
 
+      })
+
+      .catch(error => {
+
+        console.log(error);
+
       });
 
 
 
-    fetch("http://127.0.0.1:5000/api/blood-requests/")
+
+
+    // Get blood requests
+
+    fetch(
+      "http://127.0.0.1:5000/api/blood-requests/"
+    )
 
       .then(res => res.json())
 
       .then(data => {
 
         setRequests(data);
+
+      })
+
+      .catch(error => {
+
+        console.log(error);
+
+      });
+
+
+
+
+
+
+    // Get available donors
+
+    fetch(
+      "http://127.0.0.1:5000/api/auth/donors"
+    )
+
+      .then(res => res.json())
+
+      .then(data => {
+
+
+        const available = data.filter(
+
+          donor =>
+          donor.availability === "available"
+
+        ).length;
+
+
+
+        setAvailableDonors(available);
+
+
+      })
+
+      .catch(error => {
+
+        console.log(error);
 
       });
 
@@ -47,15 +114,23 @@ function AdminDashboard() {
 
 
 
+
   const completedRequests = requests.filter(
+
     req => req.status === "Completed"
+
   ).length;
+
 
 
 
   const pendingRequests = requests.filter(
+
     req => req.status === "Pending"
+
   ).length;
+
+
 
 
 
@@ -72,7 +147,12 @@ function AdminDashboard() {
 
 
 
+
+
       <div className="grid md:grid-cols-3 gap-6">
+
+
+
 
 
         <div className="bg-white shadow-lg rounded-xl p-6 border-l-4 border-blue-500">
@@ -82,10 +162,13 @@ function AdminDashboard() {
           </h2>
 
           <p className="text-4xl font-bold mt-3">
+
             {stats.total_users}
+
           </p>
 
         </div>
+
 
 
 
@@ -98,10 +181,33 @@ function AdminDashboard() {
           </h2>
 
           <p className="text-4xl font-bold mt-3 text-green-600">
+
             {stats.total_donors}
+
           </p>
 
         </div>
+
+
+
+
+
+
+        <div className="bg-white shadow-lg rounded-xl p-6 border-l-4 border-emerald-500">
+
+          <h2 className="text-gray-500">
+            Available Donors 🟢
+          </h2>
+
+          <p className="text-4xl font-bold mt-3 text-emerald-600">
+
+            {availableDonors}
+
+          </p>
+
+        </div>
+
+
 
 
 
@@ -114,10 +220,14 @@ function AdminDashboard() {
           </h2>
 
           <p className="text-4xl font-bold mt-3">
+
             {stats.total_patients}
+
           </p>
 
         </div>
+
+
 
 
 
@@ -130,26 +240,14 @@ function AdminDashboard() {
           </h2>
 
           <p className="text-4xl font-bold mt-3 text-red-600">
+
             {requests.length}
+
           </p>
 
         </div>
 
 
-
-
-
-        <div className="bg-white shadow-lg rounded-xl p-6 border-l-4 border-green-500">
-
-          <h2 className="text-gray-500">
-            Completed Requests ✅
-          </h2>
-
-          <p className="text-4xl font-bold mt-3 text-green-600">
-            {completedRequests}
-          </p>
-
-        </div>
 
 
 
@@ -162,10 +260,17 @@ function AdminDashboard() {
           </h2>
 
           <p className="text-4xl font-bold mt-3 text-yellow-600">
+
             {pendingRequests}
+
           </p>
 
         </div>
+
+
+
+
+
 
 
       </div>
