@@ -384,7 +384,7 @@ def update_user(id):
 # ================= GET ALL DONORS =================
 
 @auth_bp.route("/donors", methods=["GET"])
-@admin_required
+@jwt_required()
 def get_donors():
 
     donors = User.query.filter_by(
