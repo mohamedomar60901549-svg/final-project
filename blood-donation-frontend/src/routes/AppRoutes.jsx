@@ -31,7 +31,7 @@ import ManageUsers from "../pages/admin/ManageUsers";
 import ManageDonors from "../pages/admin/ManageDonors";
 import BloodRequests from "../pages/admin/BloodRequests";
 import Reports from "../pages/admin/Reports";
-
+import ManageDonations from "../pages/admin/ManageDonations";
 
 
 function AppRoutes() {
@@ -170,12 +170,19 @@ function AppRoutes() {
           path="requests"
           element={<BloodRequests />}
         />
+      
+        <Route
+          path="donations"
+          element={<ManageDonations />}
+          />
+
 
 
         <Route
           path="reports"
           element={<Reports />}
         />
+
 
       </Route>
 
