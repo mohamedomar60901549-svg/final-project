@@ -13,6 +13,7 @@ from flask_jwt_extended import (
 
 from extensions import db
 from models.user import User
+from utils.auth import admin_required
 
 
 auth_bp = Blueprint(
@@ -198,6 +199,7 @@ def profile():
 # ================= GET ALL USERS =================
 
 @auth_bp.route("/users", methods=["GET"])
+@admin_required
 def get_users():
 
 
@@ -238,6 +240,7 @@ def get_users():
 # ================= ADMIN STATISTICS =================
 
 @auth_bp.route("/stats", methods=["GET"])
+@admin_required
 def stats():
 
 
@@ -272,6 +275,7 @@ def stats():
 # ================= DELETE USER =================
 
 @auth_bp.route("/users/<int:id>", methods=["DELETE"])
+@admin_required
 def delete_user(id):
 
     user = User.query.get(id)
@@ -306,6 +310,7 @@ def delete_user(id):
 # ================= UPDATE USER =================
 
 @auth_bp.route("/users/<int:id>", methods=["PUT"])
+@admin_required
 def update_user(id):
 
     user = User.query.get(id)
@@ -379,6 +384,7 @@ def update_user(id):
 # ================= GET ALL DONORS =================
 
 @auth_bp.route("/donors", methods=["GET"])
+@admin_required
 def get_donors():
 
     donors = User.query.filter_by(
