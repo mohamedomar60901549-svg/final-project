@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function Home() {
   return (
     <div>
@@ -13,13 +15,21 @@ function Home() {
           </p>
 
           <div className="flex justify-center gap-4">
-            <button className="bg-white text-red-600 px-6 py-3 rounded-lg font-semibold">
-              Become a Donor
-            </button>
 
-            <button className="border border-white px-6 py-3 rounded-lg">
+            <Link
+              to="/register"
+              className="bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+            >
+              Become a Donor
+            </Link>
+
+            <Link
+              to="/request-blood"
+              className="border border-white px-6 py-3 rounded-lg hover:bg-white hover:text-red-600 transition"
+            >
               Request Blood
-            </button>
+            </Link>
+
           </div>
         </div>
       </section>
@@ -87,6 +97,7 @@ function Home() {
             </div>
 
           </div>
+
         </div>
       </section>
     </div>

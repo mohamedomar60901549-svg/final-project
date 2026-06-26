@@ -63,6 +63,11 @@ def register():
 
         location=data.get(
             "location"
+        ),
+
+        availability=data.get(
+            "availability",
+            "available"
         )
 
     )
@@ -149,15 +154,12 @@ def login():
 @jwt_required()
 def profile():
 
-
     user_id = get_jwt_identity()
 
 
-
     user = User.query.get(
-        user_id
+        int(user_id)
     )
-
 
 
     if not user:
@@ -183,7 +185,9 @@ def profile():
 
         "blood_group": user.blood_group,
 
-        "location": user.location
+        "location": user.location,
+
+        "availability": user.availability
 
     }), 200
 
@@ -218,7 +222,9 @@ def get_users():
 
             "blood_group": user.blood_group,
 
-            "location": user.location
+            "location": user.location,
+
+            "availability": user.availability
 
         })
 
@@ -259,6 +265,10 @@ def stats():
 
     }), 200
 
+
+
+
+
 # ================= DELETE USER =================
 
 @auth_bp.route("/users/<int:id>", methods=["DELETE"])
@@ -289,6 +299,10 @@ def delete_user(id):
 
     }), 200
 
+
+
+
+
 # ================= UPDATE USER =================
 
 @auth_bp.route("/users/<int:id>", methods=["PUT"])
@@ -300,7 +314,9 @@ def update_user(id):
     if not user:
 
         return jsonify({
+
             "message": "User not found"
+
         }), 404
 
 
@@ -339,6 +355,12 @@ def update_user(id):
     )
 
 
+    user.availability = data.get(
+        "availability",
+        user.availability
+    )
+
+
 
     db.session.commit()
 
@@ -348,7 +370,11 @@ def update_user(id):
 
         "message": "User updated successfully"
 
-    }),200
+    }), 200
+
+
+
+
 
 # ================= GET ALL DONORS =================
 
@@ -377,11 +403,18 @@ def get_donors():
 
             "location": donor.location,
 
+            "availability": donor.availability
 
         })
 
 
     return jsonify(result), 200
+
+
+
+
+
+# ================= UPDATE AVAILABILITY =================
 
 @auth_bp.route("/availability", methods=["PUT"])
 @jwt_required()
@@ -389,24 +422,42 @@ def update_availability():
 
     user_id = get_jwt_identity()
 
-    user = User.query.get(user_id)
+
+    user = User.query.get(
+        int(user_id)
+    )
+
 
     if not user:
 
         return jsonify({
+
             "message": "User not found"
+
         }), 404
+
+
 
     data = request.get_json()
 
+
     user.availability = data.get(
+
         "availability",
+
         user.availability
+
     )
+
 
     db.session.commit()
 
+
+
     return jsonify({
+
         "message": "Availability updated successfully",
+
         "availability": user.availability
+
     }), 200
