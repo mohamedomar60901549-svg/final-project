@@ -30,15 +30,28 @@ def register():
     data = request.get_json()
 
 
-    existing_user = User.query.filter_by(
+    existing_email = User.query.filter_by(
         email=data["email"]
     ).first()
 
 
-    if existing_user:
+    if existing_email:
 
         return jsonify({
             "message": "Email already exists"
+        }), 409
+
+
+
+    existing_phone = User.query.filter_by(
+        phone=data["phone"]
+    ).first()
+
+
+    if existing_phone:
+
+        return jsonify({
+            "message": "Phone number already exists"
         }), 409
 
 
@@ -48,6 +61,8 @@ def register():
         full_name=data["full_name"],
 
         email=data["email"],
+
+        phone=data["phone"],
 
         password=generate_password_hash(
             data["password"]
@@ -77,7 +92,6 @@ def register():
     db.session.add(user)
 
     db.session.commit()
-
 
 
     return jsonify({
@@ -182,6 +196,8 @@ def profile():
 
         "email": user.email,
 
+        "phone": user.phone,
+
         "role": user.role,
 
         "blood_group": user.blood_group,
@@ -219,6 +235,8 @@ def get_users():
             "full_name": user.full_name,
 
             "email": user.email,
+
+            "phone": user.phone,
 
             "role": user.role,
 
@@ -342,6 +360,12 @@ def update_user(id):
     )
 
 
+    user.phone = data.get(
+        "phone",
+        user.phone
+    )
+
+
     user.role = data.get(
         "role",
         user.role
@@ -404,6 +428,8 @@ def get_donors():
             "full_name": donor.full_name,
 
             "email": donor.email,
+
+            "phone": donor.phone,
 
             "blood_group": donor.blood_group,
 

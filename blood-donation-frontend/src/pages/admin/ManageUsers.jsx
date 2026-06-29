@@ -94,6 +94,7 @@ function ManageUsers() {
           </h2>
 
           <div className="grid md:grid-cols-2 gap-4">
+
             <input
               className="border p-3 rounded"
               value={editingUser.full_name}
@@ -120,6 +121,18 @@ function ManageUsers() {
 
             <input
               className="border p-3 rounded"
+              value={editingUser.phone || ""}
+              onChange={(e) =>
+                setEditingUser({
+                  ...editingUser,
+                  phone: e.target.value,
+                })
+              }
+              placeholder="Phone Number"
+            />
+
+            <input
+              className="border p-3 rounded"
               value={editingUser.blood_group || ""}
               onChange={(e) =>
                 setEditingUser({
@@ -141,6 +154,7 @@ function ManageUsers() {
               }
               placeholder="Location"
             />
+
           </div>
 
           <select
@@ -178,11 +192,13 @@ function ManageUsers() {
 
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <table className="w-full">
+
           <thead className="bg-red-600 text-white">
             <tr>
               <th className="p-4 text-left">ID</th>
               <th className="p-4 text-left">Name</th>
               <th className="p-4 text-left">Email</th>
+              <th className="p-4 text-left">Phone</th>
               <th className="p-4 text-left">Blood Group</th>
               <th className="p-4 text-left">Location</th>
               <th className="p-4 text-left">Role</th>
@@ -191,15 +207,33 @@ function ManageUsers() {
           </thead>
 
           <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="border-b">
+
+                        {users.map((user) => (
+              <tr
+                key={user.id}
+                className="border-b hover:bg-gray-50"
+              >
                 <td className="p-4">{user.id}</td>
-                <td className="p-4">{user.full_name}</td>
-                <td className="p-4">{user.email}</td>
+
+                <td className="p-4">
+                  {user.full_name}
+                </td>
+
+                <td className="p-4">
+                  {user.email}
+                </td>
+
+                <td className="p-4">
+                  {user.phone}
+                </td>
+
                 <td className="p-4 font-bold text-red-600">
                   {user.blood_group}
                 </td>
-                <td className="p-4">{user.location}</td>
+
+                <td className="p-4">
+                  {user.location}
+                </td>
 
                 <td className="p-4">
                   <span
@@ -218,14 +252,14 @@ function ManageUsers() {
                 <td className="p-4">
                   <button
                     onClick={() => setEditingUser(user)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded mr-2"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded mr-2"
                   >
                     Edit
                   </button>
 
                   <button
                     onClick={() => deleteUser(user.id)}
-                    className="bg-red-600 text-white px-3 py-1 rounded"
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
                   >
                     Delete
                   </button>
@@ -233,6 +267,7 @@ function ManageUsers() {
               </tr>
             ))}
           </tbody>
+
         </table>
       </div>
     </div>

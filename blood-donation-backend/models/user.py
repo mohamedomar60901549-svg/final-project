@@ -21,6 +21,12 @@ class User(db.Model):
         nullable=False
     )
 
+    phone = db.Column(
+        db.String(20),
+        unique=True,
+        nullable=False
+    )
+
     password = db.Column(
         db.String(255),
         nullable=False
@@ -58,6 +64,8 @@ class User(db.Model):
             "full_name": self.full_name,
 
             "email": self.email,
+
+            "phone": self.phone,
 
             "role": self.role,
 
