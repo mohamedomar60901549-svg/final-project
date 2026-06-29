@@ -55,30 +55,34 @@ class User(db.Model):
         nullable=True
     )
 
+    # ==========================
+    # Password Reset Fields
+    # ==========================
+
+    reset_token = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
+    reset_token_expiry = db.Column(
+        db.DateTime,
+        nullable=True
+    )
+
     def to_dict(self):
 
         return {
-
             "id": self.id,
-
             "full_name": self.full_name,
-
             "email": self.email,
-
             "phone": self.phone,
-
             "role": self.role,
-
             "blood_group": self.blood_group,
-
             "location": self.location,
-
             "availability": self.availability,
-
             "last_donation_date": (
                 self.last_donation_date.isoformat()
                 if self.last_donation_date
                 else None
             )
-
         }
