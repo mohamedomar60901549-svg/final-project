@@ -21,3 +21,12 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     JWT_SECRET_KEY = "lifelink_blood_donation_system_secret_key_2026_secure"
+
+
+    # Email Configuration
+    MAIL_SERVER = "smtp.gmail.com"
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+
+    MAIL_USERNAME = "lifelink.bloodsystem@gmail.com"
+    MAIL_PASSWORD = "nisfzqecqorxbqos"

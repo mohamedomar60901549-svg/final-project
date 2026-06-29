@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     phone: "",
     blood_group: "",
     password: "",
+    confirmPassword: "",
     role: "",
     location: "Nairobi",
   });
@@ -18,11 +22,33 @@ function Register() {
     });
   };
 
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.phone) {
-      alert("Please enter your phone number");
+    if (
+      !formData.full_name ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.blood_group ||
+      !formData.password ||
+      !formData.confirmPassword ||
+      !formData.role
+    ) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    if (!validateEmail(formData.email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match.");
       return;
     }
 
@@ -34,30 +60,40 @@ function Register() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            full_name: formData.full_name,
+            email: formData.email,
+            phone: formData.phone,
+            blood_group: formData.blood_group,
+            password: formData.password,
+            role: formData.role,
+            location: formData.location,
+          }),
         }
       );
 
       const data = await response.json();
 
-      if (response.ok) {
-        alert("Registration successful!");
-
-        setFormData({
-          full_name: "",
-          email: "",
-          phone: "",
-          blood_group: "",
-          password: "",
-          role: "",
-          location: "Nairobi",
-        });
-      } else {
+      if (!response.ok) {
         alert(data.message);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      alert("Registration successful!");
+
+      if (data.user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (data.user.role === "donor") {
+        navigate("/donor/dashboard");
+      } else {
+        navigate("/patient/dashboard");
       }
     } catch (error) {
       console.error(error);
-      alert("Backend server is not running");
+      alert("Backend server is not running.");
     }
   };
 
@@ -92,7 +128,7 @@ function Register() {
           <input
             type="tel"
             name="phone"
-            placeholder="Phone Number (e.g. +254712345678)"
+            placeholder="Phone Number (+254712345678)"
             value={formData.phone}
             onChange={handleChange}
             className="w-full border p-3 mb-4 rounded-lg"
@@ -127,6 +163,16 @@ function Register() {
             required
           />
 
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            className="w-full border p-3 mb-4 rounded-lg"
+            required
+          />
+
           <select
             name="role"
             value={formData.role}
@@ -137,7 +183,6 @@ function Register() {
             <option value="">Select Role</option>
             <option value="donor">🩸 Donor</option>
             <option value="patient">🏥 Patient</option>
-            <option value="admin">👨‍💼 Admin</option>
           </select>
 
           <button

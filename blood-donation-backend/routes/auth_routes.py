@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+import re
 
 from werkzeug.security import (
     generate_password_hash,
@@ -21,7 +22,6 @@ auth_bp = Blueprint(
     __name__
 )
 
-
 # ================= REGISTER USER =================
 
 @auth_bp.route("/register", methods=["POST"])
@@ -29,75 +29,76 @@ def register():
 
     data = request.get_json()
 
+    # Validate required fields
+    required_fields = [
+        "full_name",
+        "email",
+        "phone",
+        "password",
+        "role",
+        "blood_group",
+    ]
 
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({
+                "message": f"{field.replace('_', ' ').title()} is required"
+            }), 400
+
+    # Validate email format
+    email_pattern = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+
+    if not re.match(email_pattern, data["email"]):
+        return jsonify({
+            "message": "Please enter a valid email address."
+        }), 400
+
+    # Check if email already exists
     existing_email = User.query.filter_by(
         email=data["email"]
     ).first()
 
-
     if existing_email:
-
         return jsonify({
             "message": "Email already exists"
         }), 409
 
-
-
+    # Check if phone already exists
     existing_phone = User.query.filter_by(
         phone=data["phone"]
     ).first()
 
-
     if existing_phone:
-
         return jsonify({
             "message": "Phone number already exists"
         }), 409
 
-
-
+    # Create new user
     user = User(
-
-        full_name=data["full_name"],
-
-        email=data["email"],
-
-        phone=data["phone"],
-
+        full_name=data["full_name"].strip(),
+        email=data["email"].strip().lower(),
+        phone=data["phone"].strip(),
         password=generate_password_hash(
             data["password"]
         ),
-
-        role=data.get(
-            "role",
-            "donor"
-        ),
-
-        blood_group=data.get(
-            "blood_group"
-        ),
-
-        location=data.get(
-            "location"
-        ),
-
-        availability=data.get(
-            "availability",
-            "available"
-        )
-
+        role=data.get("role", "donor"),
+        blood_group=data.get("blood_group"),
+        location=data.get("location", "Nairobi"),
+        availability=data.get("availability", "available")
     )
 
-
     db.session.add(user)
-
     db.session.commit()
 
+    # Automatically log the user in
+    token = create_access_token(
+        identity=str(user.id)
+    )
 
     return jsonify({
-
-        "message": "User registered successfully"
-
+        "message": "Registration successful",
+        "token": token,
+        "user": user.to_dict()
     }), 201
 
 
