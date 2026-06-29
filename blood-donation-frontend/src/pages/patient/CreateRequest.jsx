@@ -10,18 +10,22 @@ function CreateRequest() {
     location: ""
   });
 
-  const handleChange = (e) => {
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
-
   };
 
   const handleSubmit = async (e) => {
 
     e.preventDefault();
+
+    setLoading(true);
+    setMessage("");
 
     try {
 
@@ -46,7 +50,7 @@ function CreateRequest() {
 
       if (response.ok) {
 
-        alert("Blood request created successfully!");
+        setMessage("✅ Blood request created successfully!");
 
         setFormData({
           patient_name: "",
@@ -58,14 +62,18 @@ function CreateRequest() {
 
       } else {
 
-        alert(data.message);
+        setMessage(`❌ ${data.message}`);
 
       }
 
     } catch (error) {
 
       console.error(error);
-      alert("Server error");
+      setMessage("❌ Server error. Please try again.");
+
+    } finally {
+
+      setLoading(false);
 
     }
 
@@ -80,6 +88,18 @@ function CreateRequest() {
       </h1>
 
       <div className="bg-white shadow rounded-lg p-8 max-w-2xl">
+
+        {message && (
+          <div
+            className={`mb-4 p-3 rounded text-center font-semibold ${
+              message.startsWith("✅")
+                ? "bg-green-100 text-green-700 border border-green-400"
+                : "bg-red-100 text-red-700 border border-red-400"
+            }`}
+          >
+            {message}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
 
@@ -143,9 +163,14 @@ function CreateRequest() {
 
           <button
             type="submit"
-            className="w-full bg-red-600 text-white p-3 rounded hover:bg-red-700"
+            disabled={loading}
+            className={`w-full text-white p-3 rounded ${
+              loading
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700"
+            }`}
           >
-            Create Request
+            {loading ? "Creating Request..." : "Create Request"}
           </button>
 
         </form>

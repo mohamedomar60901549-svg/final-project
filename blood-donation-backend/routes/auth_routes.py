@@ -13,6 +13,7 @@ from flask_jwt_extended import (
 )
 
 from extensions import db
+from utils.email_utils import send_email
 from models.user import User
 from utils.auth import admin_required
 
@@ -90,6 +91,40 @@ def register():
     db.session.add(user)
     db.session.commit()
 
+    # ================= SEND WELCOME EMAIL =================
+    try:
+        send_email(
+            user.email,
+            "Welcome to LifeLink Blood Donation System",
+            f"""
+Hello {user.full_name},
+
+Welcome to LifeLink 🩸
+
+Your account has been created successfully.
+
+Account Details
+-----------------------
+Name: {user.full_name}
+Email: {user.email}
+Role: {user.role}
+Blood Group: {user.blood_group}
+Location: {user.location}
+
+Thank you for joining the LifeLink Blood Donation System.
+
+Your willingness to donate blood can help save lives.
+
+Stay available, stay safe, and thank you for being part of our community.
+
+Best Regards,
+
+LifeLink Blood Donation Team
+            """
+        )
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+
     # Automatically log the user in
     token = create_access_token(
         identity=str(user.id)
@@ -100,6 +135,7 @@ def register():
         "token": token,
         "user": user.to_dict()
     }), 201
+
 
 
 
