@@ -22,11 +22,14 @@ class Config:
 
     JWT_SECRET_KEY = "lifelink_blood_donation_system_secret_key_2026_secure"
 
+    # ================= EMAIL CONFIGURATION =================
 
-    # Email Configuration
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 587
     MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
 
     MAIL_USERNAME = "lifelink.bloodsystem@gmail.com"
     MAIL_PASSWORD = "nisfzqecqorxbqos"
+
+    MAIL_DEFAULT_SENDER = "lifelink.bloodsystem@gmail.com"

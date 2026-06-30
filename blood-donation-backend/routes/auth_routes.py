@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 import re
+import secrets
+from datetime import datetime, timedelta
 
 from werkzeug.security import (
     generate_password_hash,
@@ -529,4 +531,106 @@ def update_availability():
 
         "availability": user.availability
 
+    }), 200
+
+
+# ================= FORGOT PASSWORD =================
+
+@auth_bp.route("/forgot-password", methods=["POST"])
+def forgot_password():
+
+    data = request.get_json()
+
+    email = data.get("email")
+
+    if not email:
+        return jsonify({
+            "message": "Email is required"
+        }), 400
+
+    user = User.query.filter_by(
+        email=email.lower().strip()
+    ).first()
+
+    # Don't reveal whether the email exists
+    if not user:
+        return jsonify({
+            "message": "If the email exists, a password reset link has been sent."
+        }), 200
+
+    # Generate secure token
+    token = secrets.token_urlsafe(32)
+
+    user.reset_token = token
+    user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
+
+    db.session.commit()
+
+    reset_link = f"http://localhost:5173/reset-password/{token}"
+
+    try:
+        send_email(
+            user.email,
+            "LifeLink Password Reset",
+            f"""
+Hello {user.full_name},
+
+We received a request to reset your password.
+
+Click the link below to reset it:
+
+{reset_link}
+
+This link expires in 1 hour.
+
+If you didn't request this, simply ignore this email.
+
+LifeLink Blood Donation Team
+"""
+        )
+    except Exception as e:
+        print(e)
+
+    return jsonify({
+        "message": "Password reset email sent successfully."
+    }), 200
+
+
+# ================= RESET PASSWORD =================
+
+@auth_bp.route("/reset-password/<token>", methods=["POST"])
+def reset_password(token):
+
+    data = request.get_json()
+
+    password = data.get("password")
+
+    if not password:
+        return jsonify({
+            "message": "Password is required"
+        }), 400
+
+    user = User.query.filter_by(
+        reset_token=token
+    ).first()
+
+    if not user:
+        return jsonify({
+            "message": "Invalid or expired token."
+        }), 400
+
+    if user.reset_token_expiry < datetime.utcnow():
+        return jsonify({
+            "message": "Reset token has expired."
+        }), 400
+
+    user.password = generate_password_hash(password)
+
+    user.reset_token = None
+    user.reset_token_expiry = None
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Password reset successfully."
     }), 200

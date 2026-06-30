@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 
-
 // Public
 import PublicLayout from "../layouts/PublicLayout";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 
 // Donor
 import DonorLayout from "../layouts/DonorLayout";
@@ -15,14 +15,12 @@ import DonorProfile from "../pages/donor/DonorProfile";
 import DonationHistory from "../pages/donor/DonationHistory";
 import DonateBlood from "../pages/donor/DonateBlood";
 
-
 // Patient
 import PatientLayout from "../layouts/PatientLayout";
 import PatientDashboard from "../pages/patient/PatientDashboard";
 import CreateRequest from "../pages/patient/CreateRequest";
 import MyRequests from "../pages/patient/MyRequests";
 import FindDonors from "../pages/patient/FindDonors";
-
 
 // Admin
 import AdminLayout from "../layouts/AdminLayout";
@@ -33,22 +31,16 @@ import BloodRequests from "../pages/admin/BloodRequests";
 import Reports from "../pages/admin/Reports";
 import ManageDonations from "../pages/admin/ManageDonations";
 
-
 function AppRoutes() {
-
-
   return (
-
     <Routes>
 
-
-      {/* PUBLIC ROUTES */}
+      {/* ================= PUBLIC ROUTES ================= */}
 
       <Route
         path="/"
         element={<PublicLayout />}
       >
-
         <Route
           index
           element={<Home />}
@@ -64,135 +56,110 @@ function AppRoutes() {
           element={<Register />}
         />
 
+        <Route
+          path="forgot-password"
+          element={<ForgotPassword />}
+        />
+
+        <Route
+          path="reset-password/:token"
+          element={<ResetPassword />}
+        />
       </Route>
 
-
-
-
-      {/* DONOR ROUTES */}
+      {/* ================= DONOR ROUTES ================= */}
 
       <Route
         path="/donor"
         element={<DonorLayout />}
       >
-
         <Route
           path="dashboard"
           element={<DonorDashboard />}
         />
-
 
         <Route
           path="profile"
           element={<DonorProfile />}
         />
 
-
         <Route
           path="history"
           element={<DonationHistory />}
-          />
+        />
 
         <Route
-            path="donate"
-            element={<DonateBlood />}
-          />
-
-
+          path="donate"
+          element={<DonateBlood />}
+        />
       </Route>
 
-
-
-
-
-      {/* PATIENT ROUTES */}
+      {/* ================= PATIENT ROUTES ================= */}
 
       <Route
         path="/patient"
         element={<PatientLayout />}
       >
-
         <Route
           path="dashboard"
           element={<PatientDashboard />}
         />
-
 
         <Route
           path="request"
           element={<CreateRequest />}
         />
 
-
         <Route
           path="requests"
           element={<MyRequests />}
         />
 
-
         <Route
           path="donors"
           element={<FindDonors />}
         />
-
       </Route>
 
-
-
-
-
-      {/* ADMIN ROUTES */}
+      {/* ================= ADMIN ROUTES ================= */}
 
       <Route
         path="/admin"
         element={<AdminLayout />}
       >
-
         <Route
           path="dashboard"
           element={<AdminDashboard />}
         />
-
 
         <Route
           path="users"
           element={<ManageUsers />}
         />
 
-
         <Route
           path="donors"
           element={<ManageDonors />}
         />
 
-
         <Route
           path="requests"
           element={<BloodRequests />}
         />
-      
+
         <Route
           path="donations"
           element={<ManageDonations />}
-          />
-
-
+        />
 
         <Route
           path="reports"
           element={<Reports />}
         />
-
-
       </Route>
 
-
-
     </Routes>
-
   );
-
 }
-
 
 export default AppRoutes;
