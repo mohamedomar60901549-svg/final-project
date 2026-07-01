@@ -8,6 +8,13 @@ import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
+import ChangePassword from "../pages/ChangePassword";
+import ResendVerification from "../pages/ResendVerification";
+
+// ================= ROUTE GUARDS =================
+import PatientRoute from "../components/PatientRoute";
+import DonorRoute from "../components/DonorRoute";
+import AdminRoute from "../components/AdminRoute";
 
 // ================= DONOR =================
 import DonorLayout from "../layouts/DonorLayout";
@@ -38,24 +45,13 @@ function AppRoutes() {
 
       {/* ================= PUBLIC ROUTES ================= */}
 
-      <Route
-        path="/"
-        element={<PublicLayout />}
-      >
-        <Route
-          index
-          element={<Home />}
-        />
+      <Route path="/" element={<PublicLayout />}>
 
-        <Route
-          path="login"
-          element={<Login />}
-        />
+        <Route index element={<Home />} />
 
-        <Route
-          path="register"
-          element={<Register />}
-        />
+        <Route path="login" element={<Login />} />
+
+        <Route path="register" element={<Register />} />
 
         <Route
           path="forgot-password"
@@ -71,14 +67,30 @@ function AppRoutes() {
           path="verify-email/:token"
           element={<VerifyEmail />}
         />
+
+        <Route
+          path="change-password"
+          element={<ChangePassword />}
+        />
+
+        <Route
+          path="resend-verification"
+          element={<ResendVerification />}
+        />
+
       </Route>
 
       {/* ================= DONOR ROUTES ================= */}
 
       <Route
         path="/donor"
-        element={<DonorLayout />}
+        element={
+          <DonorRoute>
+            <DonorLayout />
+          </DonorRoute>
+        }
       >
+
         <Route
           path="dashboard"
           element={<DonorDashboard />}
@@ -98,14 +110,20 @@ function AppRoutes() {
           path="donate"
           element={<DonateBlood />}
         />
+
       </Route>
 
       {/* ================= PATIENT ROUTES ================= */}
 
       <Route
         path="/patient"
-        element={<PatientLayout />}
+        element={
+          <PatientRoute>
+            <PatientLayout />
+          </PatientRoute>
+        }
       >
+
         <Route
           path="dashboard"
           element={<PatientDashboard />}
@@ -125,14 +143,20 @@ function AppRoutes() {
           path="donors"
           element={<FindDonors />}
         />
+
       </Route>
 
       {/* ================= ADMIN ROUTES ================= */}
 
       <Route
         path="/admin"
-        element={<AdminLayout />}
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
       >
+
         <Route
           path="dashboard"
           element={<AdminDashboard />}
@@ -162,6 +186,7 @@ function AppRoutes() {
           path="reports"
           element={<Reports />}
         />
+
       </Route>
 
     </Routes>

@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Register() {
-  const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -15,11 +13,15 @@ function Register() {
     location: "Nairobi",
   });
 
+  const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const validateEmail = (email) => {
@@ -28,6 +30,12 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.clear();
+    console.log("========== REGISTER ==========");
+
+    setMessage("");
+    setSuccess(false);
 
     if (
       !formData.full_name ||
@@ -38,21 +46,34 @@ function Register() {
       !formData.confirmPassword ||
       !formData.role
     ) {
-      alert("Please fill in all required fields.");
+      console.log("Missing fields");
+      setMessage("Please fill in all required fields.");
       return;
     }
 
     if (!validateEmail(formData.email)) {
-      alert("Please enter a valid email address.");
+      console.log("Invalid email");
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      console.log("Password too short");
+      setMessage("Password must be at least 8 characters.");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
+      console.log("Passwords do not match");
+      setMessage("Passwords do not match.");
       return;
     }
 
+    setLoading(true);
+
     try {
+      console.log("Sending request...");
+
       const response = await fetch(
         "http://127.0.0.1:5000/api/auth/register",
         {
@@ -72,46 +93,66 @@ function Register() {
         }
       );
 
+      console.log("Status:", response.status);
+
       const data = await response.json();
 
-      if (!response.ok) {
-        alert(data.message);
-        return;
-      }
+      console.log("Response:", data);
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      if (response.ok) {
+        setSuccess(true);
+        setMessage(data.message);
 
-      alert("Registration successful!");
-
-      if (data.user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (data.user.role === "donor") {
-        navigate("/donor/dashboard");
+        setFormData({
+          full_name: "",
+          email: "",
+          phone: "",
+          blood_group: "",
+          password: "",
+          confirmPassword: "",
+          role: "",
+          location: "Nairobi",
+        });
       } else {
-        navigate("/patient/dashboard");
+        setMessage(data.message || "Registration failed.");
       }
     } catch (error) {
-      console.error(error);
-      alert("Backend server is not running.");
+      console.error("Fetch Error:", error);
+      setMessage("Cannot connect to backend.");
     }
+
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-10">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-10 px-6">
       <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6 text-red-600">
+
+        <h1 className="text-3xl font-bold text-center text-red-600 mb-6">
           Create Account
         </h1>
 
+        {message && (
+          <div
+            className={`mb-5 p-3 rounded-lg text-center ${
+              success
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {message}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
+
           <input
             type="text"
             name="full_name"
             placeholder="Full Name"
             value={formData.full_name}
             onChange={handleChange}
-            className="w-full border p-3 mb-4 rounded-lg"
+            className="w-full border rounded-lg p-3 mb-4"
             required
           />
 
@@ -121,17 +162,17 @@ function Register() {
             placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
-            className="w-full border p-3 mb-4 rounded-lg"
+            className="w-full border rounded-lg p-3 mb-4"
             required
           />
 
           <input
-            type="tel"
+            type="text"
             name="phone"
-            placeholder="Phone Number (+254712345678)"
+            placeholder="Phone Number"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full border p-3 mb-4 rounded-lg"
+            className="w-full border rounded-lg p-3 mb-4"
             required
           />
 
@@ -139,7 +180,7 @@ function Register() {
             name="blood_group"
             value={formData.blood_group}
             onChange={handleChange}
-            className="w-full border p-3 mb-4 rounded-lg"
+            className="w-full border rounded-lg p-3 mb-4"
             required
           >
             <option value="">Select Blood Group</option>
@@ -159,7 +200,7 @@ function Register() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full border p-3 mb-4 rounded-lg"
+            className="w-full border rounded-lg p-3 mb-4"
             required
           />
 
@@ -169,7 +210,7 @@ function Register() {
             placeholder="Confirm Password"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="w-full border p-3 mb-4 rounded-lg"
+            className="w-full border rounded-lg p-3 mb-4"
             required
           />
 
@@ -177,7 +218,7 @@ function Register() {
             name="role"
             value={formData.role}
             onChange={handleChange}
-            className="w-full border p-3 mb-4 rounded-lg"
+            className="w-full border rounded-lg p-3 mb-6"
             required
           >
             <option value="">Select Role</option>
@@ -187,11 +228,35 @@ function Register() {
 
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold p-3 rounded-lg transition"
+            disabled={loading}
+            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold p-3 rounded-lg"
           >
-            Register
+            {loading ? "Creating Account..." : "Register"}
           </button>
+
         </form>
+
+        <div className="text-center mt-6">
+          <p>
+            Already have an account?
+            <Link
+              to="/login"
+              className="text-red-600 font-semibold ml-1 hover:underline"
+            >
+              Login
+            </Link>
+          </p>
+
+          <p className="mt-3">
+            <Link
+              to="/resend-verification"
+              className="text-red-600 hover:underline"
+            >
+              Didn't receive the verification email?
+            </Link>
+          </p>
+        </div>
+
       </div>
     </div>
   );
