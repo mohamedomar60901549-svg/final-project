@@ -39,9 +39,13 @@ import BloodRequests from "../pages/admin/BloodRequests";
 import Reports from "../pages/admin/Reports";
 import ManageDonations from "../pages/admin/ManageDonations";
 
+
 function AppRoutes() {
+
   return (
+
     <Routes>
+
 
       {/* ================= PUBLIC ROUTES ================= */}
 
@@ -53,144 +57,164 @@ function AppRoutes() {
 
         <Route path="register" element={<Register />} />
 
-        <Route
-          path="forgot-password"
-          element={<ForgotPassword />}
+        <Route 
+          path="forgot-password" 
+          element={<ForgotPassword />} 
         />
 
-        <Route
-          path="reset-password/:token"
-          element={<ResetPassword />}
+        <Route 
+          path="reset-password/:token" 
+          element={<ResetPassword />} 
         />
 
-        <Route
-          path="verify-email/:token"
-          element={<VerifyEmail />}
+        <Route 
+          path="verify-email/:token" 
+          element={<VerifyEmail />} 
         />
 
-        <Route
-          path="change-password"
-          element={<ChangePassword />}
+        <Route 
+          path="change-password" 
+          element={<ChangePassword />} 
         />
 
-        <Route
-          path="resend-verification"
-          element={<ResendVerification />}
+        <Route 
+          path="resend-verification" 
+          element={<ResendVerification />} 
         />
 
       </Route>
+
+
 
       {/* ================= DONOR ROUTES ================= */}
 
-      <Route
+      <Route 
         path="/donor"
-        element={
-          <DonorRoute>
-            <DonorLayout />
-          </DonorRoute>
-        }
+        element={<DonorRoute />}
       >
 
-        <Route
-          path="dashboard"
-          element={<DonorDashboard />}
-        />
+        <Route 
+          element={<DonorLayout />}
+        >
 
-        <Route
-          path="profile"
-          element={<DonorProfile />}
-        />
+          <Route 
+            path="dashboard"
+            element={<DonorDashboard />}
+          />
 
-        <Route
-          path="history"
-          element={<DonationHistory />}
-        />
+          <Route 
+            path="profile"
+            element={<DonorProfile />}
+          />
 
-        <Route
-          path="donate"
-          element={<DonateBlood />}
-        />
+          <Route 
+            path="history"
+            element={<DonationHistory />}
+          />
+
+          <Route 
+            path="donate"
+            element={<DonateBlood />}
+          />
+
+        </Route>
 
       </Route>
+
+
+
 
       {/* ================= PATIENT ROUTES ================= */}
 
-      <Route
+      <Route 
         path="/patient"
-        element={
-          <PatientRoute>
-            <PatientLayout />
-          </PatientRoute>
-        }
+        element={<PatientRoute />}
       >
 
-        <Route
-          path="dashboard"
-          element={<PatientDashboard />}
-        />
+        <Route 
+          element={<PatientLayout />}
+        >
 
-        <Route
-          path="request"
-          element={<CreateRequest />}
-        />
+          <Route 
+            path="dashboard"
+            element={<PatientDashboard />}
+          />
 
-        <Route
-          path="requests"
-          element={<MyRequests />}
-        />
+          <Route 
+            path="request"
+            element={<CreateRequest />}
+          />
 
-        <Route
-          path="donors"
-          element={<FindDonors />}
-        />
+          <Route 
+            path="requests"
+            element={<MyRequests />}
+          />
+
+          <Route 
+            path="donors"
+            element={<FindDonors />}
+          />
+
+        </Route>
 
       </Route>
+
+
+
+
 
       {/* ================= ADMIN ROUTES ================= */}
 
-      <Route
+      <Route 
         path="/admin"
-        element={
-          <AdminRoute>
-            <AdminLayout />
-          </AdminRoute>
-        }
+        element={<AdminRoute />}
       >
 
-        <Route
-          path="dashboard"
-          element={<AdminDashboard />}
-        />
+        <Route 
+          element={<AdminLayout />}
+        >
 
-        <Route
-          path="users"
-          element={<ManageUsers />}
-        />
+          <Route 
+            path="dashboard"
+            element={<AdminDashboard />}
+          />
 
-        <Route
-          path="donors"
-          element={<ManageDonors />}
-        />
+          <Route 
+            path="users"
+            element={<ManageUsers />}
+          />
 
-        <Route
-          path="requests"
-          element={<BloodRequests />}
-        />
+          <Route 
+            path="donors"
+            element={<ManageDonors />}
+          />
 
-        <Route
-          path="donations"
-          element={<ManageDonations />}
-        />
+          <Route 
+            path="requests"
+            element={<BloodRequests />}
+          />
 
-        <Route
-          path="reports"
-          element={<Reports />}
-        />
+          <Route 
+            path="donations"
+            element={<ManageDonations />}
+          />
+
+          <Route 
+            path="reports"
+            element={<Reports />}
+          />
+
+        </Route>
 
       </Route>
 
+
+
     </Routes>
+
   );
+
 }
+
 
 export default AppRoutes;

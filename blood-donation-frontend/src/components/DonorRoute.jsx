@@ -1,6 +1,6 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-function DonorRoute({ children }) {
+function DonorRoute() {
 
   const token = localStorage.getItem("token");
 
@@ -8,7 +8,7 @@ function DonorRoute({ children }) {
 
   try {
     user = JSON.parse(localStorage.getItem("user"));
-  } catch (error) {
+  } catch {
     user = null;
   }
 
@@ -20,8 +20,7 @@ function DonorRoute({ children }) {
     return <Navigate to="/" replace />;
   }
 
-  return children;
-
+  return <Outlet />;
 }
 
 export default DonorRoute;
