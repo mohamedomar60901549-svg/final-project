@@ -1,28 +1,29 @@
 import { Routes, Route } from "react-router-dom";
 
-// Public
+// ================= PUBLIC =================
 import PublicLayout from "../layouts/PublicLayout";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
+import VerifyEmail from "../pages/VerifyEmail";
 
-// Donor
+// ================= DONOR =================
 import DonorLayout from "../layouts/DonorLayout";
 import DonorDashboard from "../pages/donor/DonorDashboard";
 import DonorProfile from "../pages/donor/DonorProfile";
 import DonationHistory from "../pages/donor/DonationHistory";
 import DonateBlood from "../pages/donor/DonateBlood";
 
-// Patient
+// ================= PATIENT =================
 import PatientLayout from "../layouts/PatientLayout";
 import PatientDashboard from "../pages/patient/PatientDashboard";
 import CreateRequest from "../pages/patient/CreateRequest";
 import MyRequests from "../pages/patient/MyRequests";
 import FindDonors from "../pages/patient/FindDonors";
 
-// Admin
+// ================= ADMIN =================
 import AdminLayout from "../layouts/AdminLayout";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageUsers from "../pages/admin/ManageUsers";
@@ -64,6 +65,11 @@ function AppRoutes() {
         <Route
           path="reset-password/:token"
           element={<ResetPassword />}
+        />
+
+        <Route
+          path="verify-email/:token"
+          element={<VerifyEmail />}
         />
       </Route>
 

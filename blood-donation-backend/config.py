@@ -3,7 +3,10 @@ import os
 
 class Config:
 
-    SECRET_KEY = "blood_donation_secret_key"
+    SECRET_KEY = os.getenv(
+        "SECRET_KEY",
+        "blood_donation_secret_key"
+    )
 
     BASE_DIR = os.path.abspath(
         os.path.dirname(__file__)
@@ -20,7 +23,11 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    JWT_SECRET_KEY = "lifelink_blood_donation_system_secret_key_2026_secure"
+    JWT_SECRET_KEY = os.getenv(
+        "JWT_SECRET_KEY",
+        "lifelink_blood_donation_system_secret_key_2026_secure"
+    )
+
 
     # ================= EMAIL CONFIGURATION =================
 
@@ -29,7 +36,14 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
 
-    MAIL_USERNAME = "lifelink.bloodsystem@gmail.com"
-    MAIL_PASSWORD = "nisfzqecqorxbqos"
+    MAIL_USERNAME = os.getenv(
+        "MAIL_USERNAME"
+    )
 
-    MAIL_DEFAULT_SENDER = "lifelink.bloodsystem@gmail.com"
+    MAIL_PASSWORD = os.getenv(
+        "MAIL_PASSWORD"
+    )
+
+    MAIL_DEFAULT_SENDER = os.getenv(
+        "MAIL_USERNAME"
+    )

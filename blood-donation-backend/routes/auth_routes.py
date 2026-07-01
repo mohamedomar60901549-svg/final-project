@@ -25,170 +25,251 @@ auth_bp = Blueprint(
     __name__
 )
 
-# ================= REGISTER USER =================
+
+# ==================================================
+# REGISTER USER
+# ==================================================
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
 
     data = request.get_json()
 
-    # Validate required fields
+    verification_token = secrets.token_urlsafe(32)
+
     required_fields = [
         "full_name",
         "email",
         "phone",
         "password",
         "role",
-        "blood_group",
+        "blood_group"
     ]
 
     for field in required_fields:
+
         if not data.get(field):
+
             return jsonify({
-                "message": f"{field.replace('_', ' ').title()} is required"
+                "message": f"{field.replace('_',' ').title()} is required"
             }), 400
 
-    # Validate email format
+    email = data["email"].strip().lower()
+
+    phone = data["phone"].strip()
+
     email_pattern = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
 
-    if not re.match(email_pattern, data["email"]):
+    if not re.match(email_pattern, email):
+
         return jsonify({
             "message": "Please enter a valid email address."
         }), 400
 
-    # Check if email already exists
     existing_email = User.query.filter_by(
-        email=data["email"]
+        email=email
     ).first()
 
     if existing_email:
+
         return jsonify({
-            "message": "Email already exists"
+            "message": "Email already exists."
         }), 409
 
-    # Check if phone already exists
     existing_phone = User.query.filter_by(
-        phone=data["phone"]
+        phone=phone
     ).first()
 
     if existing_phone:
+
         return jsonify({
-            "message": "Phone number already exists"
+            "message": "Phone number already exists."
         }), 409
 
-    # Create new user
+    hashed_password = generate_password_hash(
+        data["password"]
+    )
+
     user = User(
+
         full_name=data["full_name"].strip(),
-        email=data["email"].strip().lower(),
-        phone=data["phone"].strip(),
-        password=generate_password_hash(
-            data["password"]
+
+        email=email,
+
+        phone=phone,
+
+        password=hashed_password,
+
+        role=data.get(
+            "role",
+            "donor"
         ),
-        role=data.get("role", "donor"),
-        blood_group=data.get("blood_group"),
-        location=data.get("location", "Nairobi"),
-        availability=data.get("availability", "available")
+
+        blood_group=data.get(
+            "blood_group"
+        ),
+
+        location=data.get(
+            "location",
+            "Nairobi"
+        ),
+
+        availability=data.get(
+            "availability",
+            "Available"
+        ),
+
+        is_verified=False,
+
+        verification_token=verification_token
+
     )
 
     db.session.add(user)
+
     db.session.commit()
 
-    # ================= SEND WELCOME EMAIL =================
+     # ==========================================
+    # SEND EMAIL VERIFICATION
+    # ==========================================
+
+    verification_link = (
+        f"http://localhost:5173/verify-email/{verification_token}"
+    )
+    print("Starting verification email...")
+    print(verification_link)
+
     try:
+
         send_email(
+
             user.email,
-            "Welcome to LifeLink Blood Donation System",
+
+            "Verify Your LifeLink Account",
+
             f"""
 Hello {user.full_name},
 
-Welcome to LifeLink 🩸
+Welcome to LifeLink Blood Donation System.
 
 Your account has been created successfully.
 
-Account Details
------------------------
-Name: {user.full_name}
-Email: {user.email}
-Role: {user.role}
-Blood Group: {user.blood_group}
-Location: {user.location}
+Before you can log in, please verify your email.
 
-Thank you for joining the LifeLink Blood Donation System.
+Click the link below:
 
-Your willingness to donate blood can help save lives.
+{verification_link}
 
-Stay available, stay safe, and thank you for being part of our community.
+If you did not create this account, simply ignore this email.
 
-Best Regards,
+Thank you,
 
 LifeLink Blood Donation Team
-            """
-        )
-    except Exception as e:
-        print(f"Email sending failed: {e}")
+"""
 
-    # Automatically log the user in
-    token = create_access_token(
-        identity=str(user.id)
-    )
+        )
+
+    except Exception as e:
+
+        print(f"Verification email failed: {e}")
 
     return jsonify({
-        "message": "Registration successful",
-        "token": token,
-        "user": user.to_dict()
+
+        "message":
+        "Registration successful. Please verify your email before logging in."
+
     }), 201
 
 
+# ==================================================
+# VERIFY EMAIL
+# ==================================================
+
+@auth_bp.route("/verify-email/<token>", methods=["GET"])
+def verify_email(token):
+
+    user = User.query.filter_by(
+        verification_token=token
+    ).first()
+
+    if not user:
+
+        return jsonify({
+            "message": "Invalid verification link."
+        }), 400
+
+    if user.is_verified:
+
+        return jsonify({
+            "message": "Email already verified."
+        }), 200
+
+    user.is_verified = True
+    user.verification_token = None
+
+    db.session.commit()
+
+    return jsonify({
+
+        "message": "Email verified successfully. You can now log in."
+
+    }), 200
 
 
-
-
-# ================= LOGIN USER =================
+# ==================================================
+# LOGIN
+# ==================================================
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
 
     data = request.get_json()
 
+    email = data.get(
+        "email",
+        ""
+    ).strip().lower()
+
+    password = data.get(
+        "password",
+        ""
+    )
 
     user = User.query.filter_by(
-        email=data["email"]
+        email=email
     ).first()
-
-
 
     if not user:
 
         return jsonify({
 
-            "message": "Invalid email or password"
+            "message": "Invalid email or password."
 
         }), 401
 
-
-
-
     if not check_password_hash(
         user.password,
-        data["password"]
+        password
     ):
 
         return jsonify({
 
-            "message": "Invalid email or password"
+            "message": "Invalid email or password."
 
         }), 401
 
+    if not user.is_verified:
 
+        return jsonify({
 
+            "message":
+            "Please verify your email before logging in."
+
+        }), 403
 
     token = create_access_token(
-
         identity=str(user.id)
-
     )
-
-
 
     return jsonify({
 
@@ -198,11 +279,9 @@ def login():
 
     }), 200
 
-
-
-
-
-# ================= PROFILE =================
+# ==================================================
+# PROFILE
+# ==================================================
 
 @auth_bp.route("/profile", methods=["GET"])
 @jwt_required()
@@ -210,110 +289,79 @@ def profile():
 
     user_id = get_jwt_identity()
 
-
     user = User.query.get(
         int(user_id)
     )
 
-
     if not user:
 
         return jsonify({
-
-            "message": "User not found"
-
+            "message": "User not found."
         }), 404
 
+    return jsonify(
+        user.to_dict()
+    ), 200
 
 
-
-    return jsonify({
-
-        "id": user.id,
-
-        "full_name": user.full_name,
-
-        "email": user.email,
-
-        "phone": user.phone,
-
-        "role": user.role,
-
-        "blood_group": user.blood_group,
-
-        "location": user.location,
-
-        "availability": user.availability
-
-    }), 200
-
-
-
-
-
-# ================= GET ALL USERS =================
+# ==================================================
+# GET ALL USERS (ADMIN)
+# ==================================================
 
 @auth_bp.route("/users", methods=["GET"])
 @admin_required
 def get_users():
 
-
     users = User.query.all()
-
 
     result = []
 
-
     for user in users:
 
+        result.append(
 
-        result.append({
+            user.to_dict()
 
-            "id": user.id,
-
-            "full_name": user.full_name,
-
-            "email": user.email,
-
-            "phone": user.phone,
-
-            "role": user.role,
-
-            "blood_group": user.blood_group,
-
-            "location": user.location,
-
-            "availability": user.availability
-
-        })
-
+        )
 
     return jsonify(result), 200
 
 
-
-
-
-# ================= ADMIN STATISTICS =================
+# ==================================================
+# ADMIN DASHBOARD STATISTICS
+# ==================================================
 
 @auth_bp.route("/stats", methods=["GET"])
 @admin_required
 def stats():
 
-
     total_users = User.query.count()
-
 
     total_donors = User.query.filter_by(
         role="donor"
     ).count()
 
-
     total_patients = User.query.filter_by(
         role="patient"
     ).count()
 
+    verified_users = User.query.filter_by(
+        is_verified=True
+    ).count()
 
+    unverified_users = User.query.filter_by(
+        is_verified=False
+    ).count()
+
+    available_donors = User.query.filter_by(
+        role="donor",
+        availability="Available"
+    ).count()
+
+    unavailable_donors = User.query.filter_by(
+        role="donor",
+        availability="Unavailable"
+    ).count()
 
     return jsonify({
 
@@ -321,15 +369,22 @@ def stats():
 
         "total_donors": total_donors,
 
-        "total_patients": total_patients
+        "total_patients": total_patients,
+
+        "verified_users": verified_users,
+
+        "unverified_users": unverified_users,
+
+        "available_donors": available_donors,
+
+        "unavailable_donors": unavailable_donors
 
     }), 200
 
 
-
-
-
-# ================= DELETE USER =================
+# ==================================================
+# DELETE USER
+# ==================================================
 
 @auth_bp.route("/users/<int:id>", methods=["DELETE"])
 @admin_required
@@ -337,34 +392,26 @@ def delete_user(id):
 
     user = User.query.get(id)
 
-
     if not user:
 
         return jsonify({
-
-            "message": "User not found"
-
+            "message": "User not found."
         }), 404
-
-
 
     db.session.delete(user)
 
     db.session.commit()
 
-
-
     return jsonify({
 
-        "message": "User deleted successfully"
+        "message": "User deleted successfully."
 
     }), 200
 
 
-
-
-
-# ================= UPDATE USER =================
+# ==================================================
+# UPDATE USER
+# ==================================================
 
 @auth_bp.route("/users/<int:id>", methods=["PUT"])
 @admin_required
@@ -372,79 +419,66 @@ def update_user(id):
 
     user = User.query.get(id)
 
-
     if not user:
 
         return jsonify({
-
-            "message": "User not found"
-
+            "message": "User not found."
         }), 404
 
-
-
     data = request.get_json()
-
-
 
     user.full_name = data.get(
         "full_name",
         user.full_name
     )
 
-
     user.email = data.get(
         "email",
         user.email
-    )
-
+    ).strip().lower()
 
     user.phone = data.get(
         "phone",
         user.phone
     )
 
-
     user.role = data.get(
         "role",
         user.role
     )
-
 
     user.blood_group = data.get(
         "blood_group",
         user.blood_group
     )
 
-
     user.location = data.get(
         "location",
         user.location
     )
-
 
     user.availability = data.get(
         "availability",
         user.availability
     )
 
+    if "is_verified" in data:
 
+        user.is_verified = data["is_verified"]
 
     db.session.commit()
 
-
-
     return jsonify({
 
-        "message": "User updated successfully"
+        "message": "User updated successfully.",
+
+        "user": user.to_dict()
 
     }), 200
 
-
-
-
-
-# ================= GET ALL DONORS =================
+# ==================================================
+# GET ALL DONORS
+# ==================================================
 
 @auth_bp.route("/donors", methods=["GET"])
 @jwt_required()
@@ -454,38 +488,20 @@ def get_donors():
         role="donor"
     ).all()
 
-
     result = []
-
 
     for donor in donors:
 
-        result.append({
-
-            "id": donor.id,
-
-            "full_name": donor.full_name,
-
-            "email": donor.email,
-
-            "phone": donor.phone,
-
-            "blood_group": donor.blood_group,
-
-            "location": donor.location,
-
-            "availability": donor.availability
-
-        })
-
+        result.append(
+            donor.to_dict()
+        )
 
     return jsonify(result), 200
 
 
-
-
-
-# ================= UPDATE AVAILABILITY =================
+# ==================================================
+# UPDATE DONOR AVAILABILITY
+# ==================================================
 
 @auth_bp.route("/availability", methods=["PUT"])
 @jwt_required()
@@ -493,72 +509,65 @@ def update_availability():
 
     user_id = get_jwt_identity()
 
-
     user = User.query.get(
         int(user_id)
     )
 
-
     if not user:
 
         return jsonify({
-
-            "message": "User not found"
-
+            "message": "User not found."
         }), 404
-
-
 
     data = request.get_json()
 
-
     user.availability = data.get(
-
         "availability",
-
         user.availability
-
     )
-
 
     db.session.commit()
 
-
-
     return jsonify({
 
-        "message": "Availability updated successfully",
+        "message": "Availability updated successfully.",
 
         "availability": user.availability
 
     }), 200
 
 
-# ================= FORGOT PASSWORD =================
+# ==================================================
+# FORGOT PASSWORD
+# ==================================================
 
 @auth_bp.route("/forgot-password", methods=["POST"])
 def forgot_password():
 
     data = request.get_json()
 
-    email = data.get("email")
+    email = data.get(
+        "email",
+        ""
+    ).strip().lower()
 
     if not email:
+
         return jsonify({
-            "message": "Email is required"
+            "message": "Email is required."
         }), 400
 
     user = User.query.filter_by(
-        email=email.lower().strip()
+        email=email
     ).first()
 
-    # Don't reveal whether the email exists
+    # Prevent email enumeration
     if not user:
+
         return jsonify({
-            "message": "If the email exists, a password reset link has been sent."
+            "message": "If an account exists, a password reset email has been sent."
         }), 200
 
-    # Generate secure token
     token = secrets.token_urlsafe(32)
 
     user.reset_token = token
@@ -566,37 +575,50 @@ def forgot_password():
 
     db.session.commit()
 
-    reset_link = f"http://localhost:5173/reset-password/{token}"
+    reset_link = (
+        f"http://localhost:5173/reset-password/{token}"
+    )
 
     try:
+
         send_email(
+
             user.email,
+
             "LifeLink Password Reset",
+
             f"""
 Hello {user.full_name},
 
 We received a request to reset your password.
 
-Click the link below to reset it:
+Click the link below to create a new password.
 
 {reset_link}
 
-This link expires in 1 hour.
+This link will expire in 1 hour.
 
-If you didn't request this, simply ignore this email.
+If you did not request a password reset, simply ignore this email.
 
 LifeLink Blood Donation Team
 """
+
         )
+
     except Exception as e:
-        print(e)
+
+        print("Password reset email error:", e)
 
     return jsonify({
+
         "message": "Password reset email sent successfully."
+
     }), 200
 
 
-# ================= RESET PASSWORD =================
+# ==================================================
+# RESET PASSWORD
+# ==================================================
 
 @auth_bp.route("/reset-password/<token>", methods=["POST"])
 def reset_password(token):
@@ -606,8 +628,9 @@ def reset_password(token):
     password = data.get("password")
 
     if not password:
+
         return jsonify({
-            "message": "Password is required"
+            "message": "Password is required."
         }), 400
 
     user = User.query.filter_by(
@@ -615,16 +638,26 @@ def reset_password(token):
     ).first()
 
     if not user:
+
         return jsonify({
-            "message": "Invalid or expired token."
+            "message": "Invalid reset token."
+        }), 400
+
+    if user.reset_token_expiry is None:
+
+        return jsonify({
+            "message": "Reset token is invalid."
         }), 400
 
     if user.reset_token_expiry < datetime.utcnow():
+
         return jsonify({
             "message": "Reset token has expired."
         }), 400
 
-    user.password = generate_password_hash(password)
+    user.password = generate_password_hash(
+        password
+    )
 
     user.reset_token = None
     user.reset_token_expiry = None
@@ -632,5 +665,193 @@ def reset_password(token):
     db.session.commit()
 
     return jsonify({
-        "message": "Password reset successfully."
+
+        "message": "Password has been reset successfully."
+
+    }), 200
+
+# ==================================================
+# RESEND VERIFICATION EMAIL
+# ==================================================
+
+@auth_bp.route("/resend-verification", methods=["POST"])
+def resend_verification():
+
+    data = request.get_json()
+
+    email = data.get(
+        "email",
+        ""
+    ).strip().lower()
+
+    if not email:
+
+        return jsonify({
+            "message": "Email is required."
+        }), 400
+
+    user = User.query.filter_by(
+        email=email
+    ).first()
+
+    if not user:
+
+        return jsonify({
+            "message": "User not found."
+        }), 404
+
+    if user.is_verified:
+
+        return jsonify({
+            "message": "Email is already verified."
+        }), 200
+
+    token = secrets.token_urlsafe(32)
+
+    user.verification_token = token
+
+    db.session.commit()
+
+    verification_link = (
+        f"http://localhost:5173/verify-email/{token}"
+    )
+
+    try:
+
+        send_email(
+
+            user.email,
+
+            "Verify Your LifeLink Account",
+
+            f"""
+Hello {user.full_name},
+
+Please verify your LifeLink account.
+
+Click the link below.
+
+{verification_link}
+
+Thank you,
+
+LifeLink Blood Donation Team
+"""
+
+        )
+
+    except Exception as e:
+
+        print(e)
+
+    return jsonify({
+
+        "message": "Verification email sent successfully."
+
+    }), 200
+
+
+# ==================================================
+# CHANGE PASSWORD
+# ==================================================
+
+@auth_bp.route("/change-password", methods=["PUT"])
+@jwt_required()
+def change_password():
+
+    user_id = get_jwt_identity()
+
+    user = User.query.get(
+        int(user_id)
+    )
+
+    if not user:
+
+        return jsonify({
+            "message": "User not found."
+        }), 404
+
+    data = request.get_json()
+
+    current_password = data.get(
+        "current_password"
+    )
+
+    new_password = data.get(
+        "new_password"
+    )
+
+    if not current_password or not new_password:
+
+        return jsonify({
+            "message": "Both passwords are required."
+        }), 400
+
+    if not check_password_hash(
+        user.password,
+        current_password
+    ):
+
+        return jsonify({
+            "message": "Current password is incorrect."
+        }), 400
+
+    if len(new_password) < 8:
+
+        return jsonify({
+            "message": "Password must be at least 8 characters."
+        }), 400
+
+    user.password = generate_password_hash(
+        new_password
+    )
+
+    db.session.commit()
+
+    return jsonify({
+
+        "message": "Password changed successfully."
+
+    }), 200
+
+
+# ==================================================
+# CHECK EMAIL VERIFICATION STATUS
+# ==================================================
+
+@auth_bp.route("/verification-status/<email>", methods=["GET"])
+def verification_status(email):
+
+    user = User.query.filter_by(
+        email=email.lower()
+    ).first()
+
+    if not user:
+
+        return jsonify({
+            "message": "User not found."
+        }), 404
+
+    return jsonify({
+
+        "verified": user.is_verified
+
+    }), 200
+
+
+# ==================================================
+# CHECK TOKEN VALIDITY
+# ==================================================
+
+@auth_bp.route("/validate-token", methods=["GET"])
+@jwt_required()
+def validate_token():
+    user_id = get_jwt_identity()
+
+    return jsonify({
+
+        "valid": True,
+
+        "user_id": user_id
+
     }), 200

@@ -69,6 +69,20 @@ class User(db.Model):
         nullable=True
     )
 
+    # ==========================
+    # Email Verification Fields
+    # ==========================
+
+    is_verified = db.Column(
+        db.Boolean,
+        default=False
+    )
+
+    verification_token = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
     def to_dict(self):
 
         return {
@@ -84,5 +98,6 @@ class User(db.Model):
                 self.last_donation_date.isoformat()
                 if self.last_donation_date
                 else None
-            )
+            ),
+            "is_verified": self.is_verified
         }

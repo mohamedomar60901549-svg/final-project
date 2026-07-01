@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from flask import Flask
 from flask_cors import CORS
 
@@ -14,9 +18,9 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 
-# ==========================
-# Extensions
-# ==========================
+# ==================================================
+# EXTENSIONS
+# ==================================================
 
 CORS(app)
 
@@ -25,82 +29,57 @@ jwt.init_app(app)
 mail.init_app(app)
 
 
-# ==========================
-# Routes
-# ==========================
+# ==================================================
+# REGISTER BLUEPRINTS
+# ==================================================
 
-# Authentication routes
+# Authentication Routes
 app.register_blueprint(
     auth_bp,
     url_prefix="/api/auth"
 )
 
-
-# Blood request routes
+# Blood Request Routes
 app.register_blueprint(
     blood_request_bp,
     url_prefix="/api/blood-requests"
 )
 
-
-# Donation routes
+# Donation Routes
 app.register_blueprint(
     donation_bp,
     url_prefix="/api/donations"
 )
 
 
-# ==========================
-# Database
-# ==========================
+# ==================================================
+# DATABASE
+# ==================================================
 
 with app.app_context():
     db.create_all()
 
 
-# ==========================
-# Test Routes
-# ==========================
+# ==================================================
+# HOME ROUTE
+# ==================================================
 
 @app.route("/")
 def home():
+
     return {
-        "message": "Blood Donation API Running"
+        "message": "🩸 LifeLink Blood Donation API is Running Successfully"
     }
 
 
-@app.route("/api/test-email")
-def test_email():
-
-    from flask_mail import Message
-
-    msg = Message(
-        subject="LifeLink Test Email",
-        sender="lifelink.bloodsystem@gmail.com",
-        recipients=[
-            "lifelink.bloodsystem@gmail.com"
-        ]
-    )
-
-    msg.body = """
-Hello from LifeLink Blood Donation System.
-
-Email service is working successfully.
-"""
-
-    mail.send(msg)
-
-    return {
-        "message": "Test email sent successfully"
-    }
-
-
-# ==========================
-# Run Application
-# ==========================
+# ==================================================
+# RUN APPLICATION
+# ==================================================
 
 if __name__ == "__main__":
+
     app.run(
-        debug=True,
-        port=5000
+        host="127.0.0.1",
+        port=5000,
+        debug=True
     )
