@@ -164,21 +164,132 @@ def register():
             "Verify Your LifeLink Account",
 
             f"""
-Hello {user.full_name},
+<!DOCTYPE html>
+<html>
+<head>
 
-Welcome to LifeLink Blood Donation System!
+<style>
 
-Your account has been created successfully.
+body {{
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f6f8;
+    padding: 20px;
+}}
 
-Before you can log in, please verify your email by clicking the link below.
+.container {{
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+}}
 
+.logo {{
+    width: 90px;
+    height: 90px;
+    margin-bottom: 20px;
+}}
+
+h1 {{
+    color: #dc2626;
+}}
+
+p {{
+    color: #444;
+    font-size: 16px;
+    line-height: 1.6;
+}}
+
+.button {{
+    display: inline-block;
+    background-color: #dc2626;
+    color: white !important;
+    padding: 14px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 20px 0;
+}}
+
+.footer {{
+    margin-top: 30px;
+    font-size: 13px;
+    color: #777;
+}}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+<img 
+src="https://cdn-icons-png.flaticon.com/512/3063/3063176.png"
+class="logo"
+alt="LifeLink Logo"
+/>
+
+
+<h1>
+Welcome to LifeLink ❤️
+</h1>
+
+
+<p>
+Hello <b>{user.full_name}</b>,
+</p>
+
+
+<p>
+Your LifeLink Blood Donation System account has been created successfully.
+</p>
+
+
+<p>
+To activate your account and start using LifeLink, please verify your email address.
+</p>
+
+
+<a 
+href="{verification_link}" 
+class="button">
+Verify Email Address
+</a>
+
+
+<p>
+If the button does not work, copy and paste this link into your browser:
+</p>
+
+
+<p>
 {verification_link}
+</p>
 
-If you did not create this account, simply ignore this email.
 
-Regards,
+<div class="footer">
 
-LifeLink Blood Donation System
+<p>
+If you did not create this account, you can safely ignore this email.
+</p>
+
+<p>
+© LifeLink Blood Donation System
+</p>
+
+</div>
+
+
+</div>
+
+</body>
+
+</html>
 """
 
         )

@@ -15,31 +15,91 @@ function DonorDashboard() {
   useEffect(() => {
 
 
+    const token = localStorage.getItem("token");
+
+
+
+    const headers = {
+
+      "Content-Type": "application/json",
+
+      "Authorization": `Bearer ${token}`
+
+    };
+
+
+
+
     // Get donations
 
-    fetch("http://127.0.0.1:5000/api/donations/")
+    fetch(
+      "http://127.0.0.1:5000/api/donations/",
+      {
+        headers
+      }
+    )
 
       .then(res => res.json())
 
       .then(data => {
 
-        setDonations(data);
+        setDonations(
+          Array.isArray(data) ? data : []
+        );
+
+      })
+
+      .catch(error => {
+
+        console.log(
+          "Donation error:",
+          error
+        );
 
       });
+
+
+
 
 
 
     // Get blood requests
 
-    fetch("http://127.0.0.1:5000/api/blood-requests/")
+    fetch(
+      "http://127.0.0.1:5000/api/blood-requests/",
+      {
+        headers
+      }
+    )
 
       .then(res => res.json())
 
       .then(data => {
 
-        setRequests(data);
+
+        setRequests(
+
+          Array.isArray(data)
+            ? data
+            : []
+
+        );
+
+
+      })
+
+      .catch(error => {
+
+        console.log(
+          "Blood request error:",
+          error
+        );
 
       });
+
+
+
+
 
 
 
@@ -50,13 +110,16 @@ function DonorDashboard() {
 
     if (storedUser) {
 
-      setUser(JSON.parse(storedUser));
+      setUser(
+        JSON.parse(storedUser)
+      );
 
     }
 
 
 
   }, []);
+
 
 
 
@@ -70,6 +133,8 @@ function DonorDashboard() {
 
 
 
+
+
   const completedDonations = donations.filter(
 
     donation => donation.status === "Completed"
@@ -79,10 +144,11 @@ function DonorDashboard() {
 
 
 
+
+
   return (
 
     <div>
-
 
 
       <h1 className="text-3xl font-bold text-gray-800 mb-8">
@@ -90,6 +156,7 @@ function DonorDashboard() {
         Donor Dashboard 🩸
 
       </h1>
+
 
 
 
@@ -217,6 +284,7 @@ function DonorDashboard() {
           Recent Blood Requests 🩸
 
         </h2>
+
 
 
 
