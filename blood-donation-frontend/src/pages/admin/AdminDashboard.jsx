@@ -11,55 +11,90 @@ function AdminDashboard() {
   const [availableDonors, setAvailableDonors] = useState(0);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        };
+
+        // -----------------------------
+        // Load statistics
+        // -----------------------------
+        const statsResponse = await fetch(
+          "http://127.0.0.1:5000/api/auth/stats",
+          {
+            headers,
+          }
+        );
+
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setStats(statsData);
+        }
+
+        // -----------------------------
+        // Load blood requests
+        // -----------------------------
+        const requestsResponse = await fetch(
+          "http://127.0.0.1:5000/api/blood-requests/",
+          {
+            headers,
+          }
+        );
+
+        if (requestsResponse.ok) {
+          const requestsData = await requestsResponse.json();
+
+          if (Array.isArray(requestsData)) {
+            setRequests(requestsData);
+          } else {
+            setRequests([]);
+          }
+        } else {
+          setRequests([]);
+        }
+
+        // -----------------------------
+        // Load donors
+        // -----------------------------
+        const donorsResponse = await fetch(
+          "http://127.0.0.1:5000/api/auth/donors",
+          {
+            headers,
+          }
+        );
+
+        if (donorsResponse.ok) {
+          const donorsData = await donorsResponse.json();
+
+          if (Array.isArray(donorsData)) {
+            setAvailableDonors(
+              donorsData.filter(
+                (donor) =>
+                  donor.availability &&
+                  donor.availability.toLowerCase() === "available"
+              ).length
+            );
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
     };
 
-    // Load statistics
-    fetch("http://127.0.0.1:5000/api/auth/stats", {
-      headers,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => setStats(data))
-      .catch((err) => console.log(err));
-
-    // Load blood requests
-    fetch("http://127.0.0.1:5000/api/blood-requests/")
-      .then((res) => res.json())
-      .then((data) => setRequests(data))
-      .catch((err) => console.log(err));
-
-    // Load donors
-    fetch("http://127.0.0.1:5000/api/auth/donors", {
-      headers,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => {
-        setAvailableDonors(
-          data.filter(
-            (donor) =>
-              donor.availability &&
-              donor.availability.toLowerCase() === "available"
-          ).length
-        );
-      })
-      .catch((err) => console.log(err));
+    fetchData();
   }, []);
 
-  const completedRequests = requests.filter(
+  const safeRequests = Array.isArray(requests) ? requests : [];
+
+  const completedRequests = safeRequests.filter(
     (req) => req.status === "Completed"
   ).length;
 
-  const pendingRequests = requests.filter(
+  const pendingRequests = safeRequests.filter(
     (req) => req.status === "Pending"
   ).length;
 
@@ -102,7 +137,7 @@ function AdminDashboard() {
         <div className="bg-white shadow-lg rounded-xl p-6 border-l-4 border-orange-600">
           <p className="text-gray-500">Blood Requests 🩸</p>
           <h2 className="text-4xl font-bold text-orange-600 mt-3">
-            {requests.length}
+            {safeRequests.length}
           </h2>
         </div>
 

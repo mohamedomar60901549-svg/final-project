@@ -39,13 +39,27 @@ function Reports() {
         return res.json();
       })
       .then((data) => setStats(data))
-      .catch(console.log);
+      .catch(console.error);
 
     // Blood Requests
-    fetch("http://127.0.0.1:5000/api/blood-requests/")
-      .then((res) => res.json())
-      .then((data) => setRequests(data))
-      .catch(console.log);
+    fetch("http://127.0.0.1:5000/api/blood-requests/", {
+      headers,
+    })
+      .then(async (res) => {
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.error(data);
+          setRequests([]);
+          return;
+        }
+
+        setRequests(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => {
+        console.error(err);
+        setRequests([]);
+      });
 
     // Users
     fetch("http://127.0.0.1:5000/api/auth/users", {
@@ -55,8 +69,10 @@ function Reports() {
         if (!res.ok) throw new Error("Unauthorized");
         return res.json();
       })
-      .then((data) => setUsers(data))
-      .catch(console.log);
+      .then((data) => {
+        setUsers(Array.isArray(data) ? data : []);
+      })
+      .catch(console.error);
 
     // Donors
     fetch("http://127.0.0.1:5000/api/auth/donors", {
@@ -67,22 +83,27 @@ function Reports() {
         return res.json();
       })
       .then((data) => {
-        const available = data.filter(
-          (donor) =>
-            donor.availability &&
-            donor.availability.toLowerCase() === "available"
-        ).length;
+        const donorList = Array.isArray(data) ? data : [];
 
-        setAvailableDonors(available);
+        setAvailableDonors(
+          donorList.filter(
+            (donor) =>
+              donor.availability &&
+              donor.availability.toLowerCase() === "available"
+          ).length
+        );
       })
-      .catch(console.log);
+      .catch(console.error);
   }, []);
 
-  const completed = requests.filter(
+  const safeRequests = Array.isArray(requests) ? requests : [];
+  const safeUsers = Array.isArray(users) ? users : [];
+
+  const completed = safeRequests.filter(
     (req) => req.status === "Completed"
   ).length;
 
-  const pending = requests.filter(
+  const pending = safeRequests.filter(
     (req) => req.status === "Pending"
   ).length;
 
@@ -96,7 +117,8 @@ function Reports() {
       value: stats.total_patients,
     },
     {
-      name: "Admins",
+      name:
+        "Admins",
       value:
         stats.total_users -
         stats.total_donors -
@@ -117,7 +139,7 @@ function Reports() {
 
   const groups = {};
 
-  users.forEach((user) => {
+  safeUsers.forEach((user) => {
     if (user.blood_group) {
       groups[user.blood_group] =
         (groups[user.blood_group] || 0) + 1;
@@ -138,7 +160,6 @@ function Reports() {
 
   return (
     <div className="space-y-8">
-
       <div className="bg-gradient-to-r from-red-700 to-red-500 text-white rounded-xl p-8 shadow-lg">
         <h1 className="text-4xl font-bold">
           📊 System Reports
@@ -149,7 +170,6 @@ function Reports() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
         <StatCard
           title="Total Users"
           value={stats.total_users}
@@ -173,7 +193,7 @@ function Reports() {
 
         <StatCard
           title="Blood Requests"
-          value={requests.length}
+          value={safeRequests.length}
           icon="📄"
           color="bg-purple-500"
         />
@@ -191,11 +211,9 @@ function Reports() {
           icon="⏳"
           color="bg-yellow-500"
         />
-
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-
         <div className="bg-white shadow rounded-xl p-6">
           <h2 className="text-xl font-bold mb-4">
             User Distribution
@@ -216,6 +234,7 @@ function Reports() {
                   />
                 ))}
               </Pie>
+
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
@@ -238,7 +257,6 @@ function Reports() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-
       </div>
 
       <div className="bg-white shadow rounded-xl p-6">
@@ -258,7 +276,6 @@ function Reports() {
           </BarChart>
         </ResponsiveContainer>
       </div>
-
     </div>
   );
 }
@@ -268,9 +285,7 @@ function StatCard({ title, value, icon, color }) {
     <div className="bg-white shadow rounded-xl p-6 flex justify-between items-center">
       <div>
         <p className="text-gray-500">{title}</p>
-        <h2 className="text-4xl font-bold">
-          {value}
-        </h2>
+        <h2 className="text-4xl font-bold">{value}</h2>
       </div>
 
       <div

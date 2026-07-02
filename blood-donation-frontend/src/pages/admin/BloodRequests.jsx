@@ -1,521 +1,175 @@
 import { useEffect, useState } from "react";
 
-
 function BloodRequests() {
-
-
   const [requests, setRequests] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
+  const fetchRequests = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
+      const response = await fetch(
+        "http://127.0.0.1:5000/api/blood-requests/",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-  const fetchRequests = () => {
+      const data = await response.json();
 
+      if (response.ok) {
+        setRequests(Array.isArray(data) ? data : []);
+      } else {
+        console.log(data);
+        alert(data.message || "Failed to load blood requests.");
+        setRequests([]);
+      }
+    } catch (error) {
+      console.log(error);
+      setRequests([]);
+    }
 
-    fetch(
-      "http://127.0.0.1:5000/api/blood-requests/"
-    )
-
-      .then(res => res.json())
-
-      .then(data => {
-
-        setRequests(data);
-
-        setLoading(false);
-
-      })
-
-      .catch(error => {
-
-        console.log(error);
-
-        setLoading(false);
-
-      });
-
-
+    setLoading(false);
   };
-
-
-
-
 
   useEffect(() => {
-
     fetchRequests();
-
   }, []);
 
-
-
-
-
-
-
   const updateStatus = async (id, currentStatus) => {
+    let newStatus = currentStatus;
 
-
-    let newStatus;
-
-
-
-    if(currentStatus === "Pending"){
-
+    if (currentStatus === "Pending") {
       newStatus = "Approved";
-
-    }
-
-    else if(currentStatus === "Approved"){
-
+    } else if (currentStatus === "Approved") {
       newStatus = "Completed";
-
-    }
-
-    else{
-
+    } else {
       return;
-
     }
 
+    if (!window.confirm(`Change status to ${newStatus}?`)) return;
 
+    try {
+      const token = localStorage.getItem("token");
 
+      const response = await fetch(
+        `http://127.0.0.1:5000/api/blood-requests/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            status: newStatus,
+          }),
+        }
+      );
 
-    const confirmUpdate = window.confirm(
+      const data = await response.json();
 
-      `Change status to ${newStatus}?`
-
-    );
-
-
-
-    if(!confirmUpdate) return;
-
-
-
-
-
-    await fetch(
-
-      `http://127.0.0.1:5000/api/blood-requests/${id}`,
-
-      {
-
-        method:"PUT",
-
-        headers:{
-
-          "Content-Type":"application/json"
-
-        },
-
-        body:JSON.stringify({
-
-          status:newStatus
-
-        })
-
+      if (!response.ok) {
+        alert(data.message || "Update failed.");
+        return;
       }
 
-    );
-
-
-
-    fetchRequests();
-
-
+      fetchRequests();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-
-
-
-
-
-
   return (
-
-
     <div>
-
-
       <h1 className="text-3xl font-bold mb-6">
-
         Blood Requests 🩸
-
       </h1>
 
-
-
-
-
       <div className="bg-white shadow rounded-lg p-6 overflow-x-auto">
-
-
-
-
-
-      {
-
-        loading ?
-
-
-        (
-
-          <p className="text-center">
-
-            Loading requests...
-
-          </p>
-
-        )
-
-
-
-        :
-
-
-
-        requests.length === 0 ?
-
-
-        (
-
+        {loading ? (
+          <p className="text-center">Loading requests...</p>
+        ) : requests.length === 0 ? (
           <p className="text-center text-gray-500">
-
             No blood requests available.
-
           </p>
-
-        )
-
-
-
-        :
-
-
-
-        (
-
+        ) : (
           <table className="w-full text-sm">
-
-
             <thead>
-
-
               <tr className="border-b bg-gray-100">
-
-
-                <th className="p-3">
-                  ID
-                </th>
-
-
-                <th>
-                  Patient
-                </th>
-
-
-                <th>
-                  Blood Group
-                </th>
-
-
-                <th>
-                  Hospital
-                </th>
-
-
-                <th>
-                  Location
-                </th>
-
-
-                <th>
-                  Units
-                </th>
-
-
-                <th>
-                  Status
-                </th>
-
-
-                <th>
-                  Action
-                </th>
-
-
+                <th className="p-3">ID</th>
+                <th>Patient</th>
+                <th>Blood Group</th>
+                <th>Hospital</th>
+                <th>Location</th>
+                <th>Units</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-
-
             </thead>
 
-
-
-
-
             <tbody>
-
-
-            {
-
-              requests.map(req => (
-
-
+              {requests.map((req) => (
                 <tr
-
                   key={req.id}
-
                   className="border-b text-center hover:bg-gray-50"
-
                 >
+                  <td className="p-3">{req.id}</td>
 
-
-
-                  <td className="p-3">
-
-                    {req.id}
-
-                  </td>
-
-
-
-
-
-                  <td>
-
-                    {req.patient_name}
-
-                  </td>
-
-
-
-
+                  <td>{req.patient_name}</td>
 
                   <td className="font-bold text-red-600">
-
                     {req.blood_group}
-
                   </td>
 
+                  <td>{req.hospital}</td>
 
+                  <td>{req.location}</td>
 
-
-
-                  <td>
-
-                    {req.hospital}
-
-                  </td>
-
-
-
-
+                  <td>{req.units_needed}</td>
 
                   <td>
-
-                    {req.location}
-
-                  </td>
-
-
-
-
-
-                  <td>
-
-                    {req.units_needed}
-
-                  </td>
-
-
-
-
-
-                  <td>
-
-
                     <span
-
-
                       className={
-
-
                         req.status === "Completed"
-
-
-                        ?
-
-
-                        "bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold"
-
-
-
-                        :
-
-
-
-                        req.status === "Approved"
-
-
-                        ?
-
-
-                        "bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold"
-
-
-
-                        :
-
-
-
-                        "bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold"
-
-
+                          ? "bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold"
+                          : req.status === "Approved"
+                          ? "bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold"
+                          : "bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold"
                       }
-
-
                     >
-
-
                       {req.status}
-
-
                     </span>
-
-
-
                   </td>
-
-
-
-
-
 
                   <td>
-
-
-
-                  {
-
-                    req.status !== "Completed"
-
-
-                    ?
-
-
-                    (
-
-                    <button
-
-
-                      onClick={() =>
-
-                        updateStatus(
-                          req.id,
-                          req.status
-                        )
-
-                      }
-
-
-                      className="
-                      bg-green-600
-                      hover:bg-green-700
-                      text-white
-                      px-4
-                      py-2
-                      rounded
-                      "
-
-
-                    >
-
-
-                      {
-
-                        req.status === "Pending"
-
-                        ?
-
-                        "Approve"
-
-                        :
-
-                        "Complete"
-
-                      }
-
-
-
-                    </button>
-
-
-                    )
-
-
-
-                    :
-
-
-
-                    (
-
+                    {req.status !== "Completed" ? (
+                      <button
+                        onClick={() =>
+                          updateStatus(req.id, req.status)
+                        }
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                      >
+                        {req.status === "Pending"
+                          ? "Approve"
+                          : "Complete"}
+                      </button>
+                    ) : (
                       <span className="text-green-600 font-bold">
-
                         ✓ Completed
-
                       </span>
-
-                    )
-
-
-                  }
-
-
-
+                    )}
                   </td>
-
-
-
-
-
                 </tr>
-
-
-              ))
-
-
-            }
-
-
-
+              ))}
             </tbody>
-
-
-
           </table>
-
-        )
-
-
-      }
-
-
-
-
+        )}
       </div>
-
-
-
     </div>
-
-
   );
-
-
 }
-
 
 export default BloodRequests;
