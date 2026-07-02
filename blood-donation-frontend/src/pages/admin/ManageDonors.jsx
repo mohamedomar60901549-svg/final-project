@@ -7,6 +7,10 @@ function ManageDonors() {
 
   const token = localStorage.getItem("token");
 
+  // ==========================
+  // LOAD DONORS
+  // ==========================
+
   const loadDonors = async () => {
     try {
       const response = await fetch(
@@ -19,12 +23,13 @@ function ManageDonors() {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Unauthorized");
-      }
-
       const data = await response.json();
-      setDonors(data);
+
+      if (response.ok) {
+        setDonors(data);
+      } else {
+        console.log(data.message);
+      }
     } catch (error) {
       console.log("Error loading donors:", error);
     }
@@ -33,6 +38,10 @@ function ManageDonors() {
   useEffect(() => {
     loadDonors();
   }, []);
+
+  // ==========================
+  // DELETE DONOR
+  // ==========================
 
   const deleteDonor = async (id) => {
     const confirmDelete = window.confirm(
@@ -52,13 +61,22 @@ function ManageDonors() {
         }
       );
 
+      const data = await response.json();
+
       if (response.ok) {
+        alert(data.message);
         loadDonors();
+      } else {
+        alert(data.message);
       }
     } catch (error) {
-      console.log("Delete error:", error);
+      console.log(error);
     }
   };
+
+  // ==========================
+  // UPDATE DONOR
+  // ==========================
 
   const updateDonor = async () => {
     try {
@@ -74,14 +92,25 @@ function ManageDonors() {
         }
       );
 
+      const data = await response.json();
+
       if (response.ok) {
+        alert("Donor updated successfully.");
+
         setEditingDonor(null);
+
         loadDonors();
+      } else {
+        alert(data.message);
       }
     } catch (error) {
       console.log("Update error:", error);
     }
   };
+
+  // ==========================
+  // SEARCH
+  // ==========================
 
   const filteredDonors = donors.filter((donor) => {
     return (
@@ -112,8 +141,7 @@ function ManageDonors() {
           </h2>
 
           <div className="grid md:grid-cols-2 gap-4">
-
-            <input
+                        <input
               className="border p-3 rounded"
               value={editingDonor.full_name}
               onChange={(e) =>
@@ -175,7 +203,7 @@ function ManageDonors() {
 
             <select
               className="border p-3 rounded"
-              value={editingDonor.availability}
+              value={editingDonor.availability || "Available"}
               onChange={(e) =>
                 setEditingDonor({
                   ...editingDonor,
@@ -183,8 +211,8 @@ function ManageDonors() {
                 })
               }
             >
-              <option value="available">Available</option>
-              <option value="unavailable">Unavailable</option>
+              <option value="Available">Available</option>
+              <option value="Unavailable">Unavailable</option>
             </select>
 
           </div>
@@ -233,8 +261,8 @@ function ManageDonors() {
           </thead>
 
           <tbody>
-                        {filteredDonors.length > 0 ? (
-              filteredDonors.map((donor) => (
+            {filteredDonors.length > 0 ? (
+                            filteredDonors.map((donor) => (
                 <tr
                   key={donor.id}
                   className="border-b hover:bg-gray-50"
@@ -262,20 +290,32 @@ function ManageDonors() {
                   </td>
 
                   <td className="p-4">
-                    {donor.availability === "available" ? (
+                    {(
+                      donor.availability || ""
+                    ).toLowerCase() === "available" ? (
                       <span className="text-green-600 font-bold">
                         🟢 Available
                       </span>
                     ) : (
                       <span className="text-red-600 font-bold">
-                        🔴 Not Available
+                        🔴 Unavailable
                       </span>
                     )}
                   </td>
 
                   <td className="p-4">
                     <button
-                      onClick={() => setEditingDonor(donor)}
+                      onClick={() =>
+                        setEditingDonor({
+                          ...donor,
+                          availability:
+                            donor.availability === "available"
+                              ? "Available"
+                              : donor.availability === "unavailable"
+                              ? "Unavailable"
+                              : donor.availability,
+                        })
+                      }
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded mr-2"
                     >
                       Edit
@@ -290,7 +330,7 @@ function ManageDonors() {
                   </td>
                 </tr>
               ))
-            ) : (
+                          ) : (
               <tr>
                 <td
                   colSpan="8"

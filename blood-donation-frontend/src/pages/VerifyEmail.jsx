@@ -1,55 +1,41 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 function VerifyEmail() {
   const { token } = useParams();
   const navigate = useNavigate();
 
+  const hasVerified = useRef(false);
+
   const [message, setMessage] = useState("Verifying your email...");
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
+    if (hasVerified.current) return;
 
-    const verifyEmail = async () => {
-      try {
-        const response = await fetch(
-          `http://127.0.0.1:5000/api/auth/verify-email/${token}`
-        );
+    hasVerified.current = true;
 
-        const data = await response.json().catch(() => null);
+    verifyEmail();
+  }, []);
 
-        if (!isMounted) return;
+  const verifyEmail = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:5000/api/auth/verify-email/${token}`
+      );
 
-        if (response.ok) {
-          setMessage(data?.message || "Email verified successfully!");
-          setLoading(false);
+      const data = await response.json();
 
-          setTimeout(() => {
-            navigate("/login");
-          }, 3000);
-        } else {
-          setMessage(data?.message || "Verification failed.");
-          setLoading(false);
-        }
-      } catch (error) {
-        if (!isMounted) return;
-        setMessage("Network error. Please try again.");
-        setLoading(false);
+      setMessage(data.message);
+
+      if (response.ok) {
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
       }
-    };
-
-    if (token) {
-      verifyEmail();
-    } else {
-      setMessage("Invalid verification link.");
-      setLoading(false);
+    } catch (error) {
+      setMessage("Something went wrong.");
     }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [token, navigate]);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -58,15 +44,7 @@ function VerifyEmail() {
           LifeLink
         </h1>
 
-        <p className="text-center text-lg">
-          {message}
-        </p>
-
-        {loading && (
-          <p className="text-center text-sm text-gray-500 mt-2">
-            Please wait...
-          </p>
-        )}
+        <p className="text-center text-lg">{message}</p>
       </div>
     </div>
   );

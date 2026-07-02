@@ -11,6 +11,7 @@ from routes.auth_routes import register_auth_routes
 from routes.blood_request_routes import blood_request_bp
 from routes.donation_routes import donation_bp
 
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -28,16 +29,13 @@ mail.init_app(app)
 # REGISTER BLUEPRINTS
 # ==================================================
 
-# AUTH (NEW STRUCTURE)
 register_auth_routes(app)
 
-# Blood Request Routes
 app.register_blueprint(
     blood_request_bp,
     url_prefix="/api/blood-requests"
 )
 
-# Donation Routes
 app.register_blueprint(
     donation_bp,
     url_prefix="/api/donations"
@@ -48,7 +46,13 @@ app.register_blueprint(
 # ==================================================
 
 with app.app_context():
+
     db.create_all()
+
+    print("\n======================================")
+    print("🩸 LifeLink Backend Started")
+    print("Database:", db.engine.url)
+    print("======================================\n")
 
 # ==================================================
 # HOME ROUTE

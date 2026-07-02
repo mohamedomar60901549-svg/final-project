@@ -7,7 +7,6 @@ from extensions import db
 from models.user import User
 from utils.email_utils import send_verification_email
 
-
 auth_register_bp = Blueprint("auth_register", __name__)
 
 
@@ -19,7 +18,14 @@ def register():
     if not data:
         return jsonify({"message": "Request body is required."}), 400
 
-    required_fields = ["full_name", "email", "phone", "password", "role", "blood_group"]
+    required_fields = [
+        "full_name",
+        "email",
+        "phone",
+        "password",
+        "role",
+        "blood_group"
+    ]
 
     for field in required_fields:
         if not data.get(field):
@@ -57,6 +63,11 @@ def register():
     db.session.add(user)
     db.session.commit()
 
+    print("\n========== REGISTER ==========")
+    print("Email:", user.email)
+    print("Saved Token:", user.verification_token)
+    print("==============================\n")
+
     send_verification_email(user)
 
     return jsonify({
@@ -64,14 +75,20 @@ def register():
     }), 201
 
 
-# ==================================================
-# EMAIL VERIFICATION (IMPORTANT PART YOU WERE MISSING)
-# ==================================================
-
 @auth_register_bp.route("/verify-email/<token>", methods=["GET"])
 def verify_email(token):
 
+    print("\n========== VERIFY ==========")
+    print("Token from URL:", token)
+
     user = User.query.filter_by(verification_token=token).first()
+
+    print("User Found:", user)
+
+    if user:
+        print("Database Token:", user.verification_token)
+
+    print("============================\n")
 
     if not user:
         return jsonify({"message": "Invalid or expired verification link."}), 400
@@ -84,4 +101,6 @@ def verify_email(token):
 
     db.session.commit()
 
-    return jsonify({"message": "Email verified successfully."}), 200
+    return jsonify({
+        "message": "Email verified successfully."
+    }), 200
