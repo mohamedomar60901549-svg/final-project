@@ -11,6 +11,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+import * as XLSX from "xlsx";
+
 function Reports() {
   const [stats, setStats] = useState({
     total_users: 0,
@@ -22,82 +27,109 @@ function Reports() {
   const [users, setUsers] = useState([]);
   const [availableDonors, setAvailableDonors] = useState(0);
 
+  const [lastUpdated, setLastUpdated] = useState(
+    new Date().toLocaleString()
+  );
+
+  const token = localStorage.getItem("token");
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+
+  const loadData = async () => {
+    try {
+      // ===========================
+      // SYSTEM STATS
+      // ===========================
+
+      const statsRes = await fetch(
+        "http://127.0.0.1:5000/api/auth/stats",
+        { headers }
+      );
+
+      const statsData = await statsRes.json();
+
+      setStats(statsData);
+
+      // ===========================
+      // BLOOD REQUESTS
+      // ===========================
+
+      const requestRes = await fetch(
+        "http://127.0.0.1:5000/api/blood-requests/",
+        { headers }
+      );
+
+      const requestData = await requestRes.json();
+
+      setRequests(
+        Array.isArray(requestData)
+          ? requestData
+          : []
+      );
+
+      // ===========================
+      // USERS
+      // ===========================
+
+      const usersRes = await fetch(
+        "http://127.0.0.1:5000/api/auth/users",
+        { headers }
+      );
+
+      const usersData = await usersRes.json();
+
+      setUsers(
+        Array.isArray(usersData)
+          ? usersData
+          : []
+      );
+
+      // ===========================
+      // DONORS
+      // ===========================
+
+      const donorRes = await fetch(
+        "http://127.0.0.1:5000/api/auth/donors",
+        { headers }
+      );
+
+      const donorData = await donorRes.json();
+
+      const donorList = Array.isArray(donorData)
+        ? donorData
+        : [];
+
+      setAvailableDonors(
+        donorList.filter(
+          (donor) =>
+            donor.availability &&
+            donor.availability.toLowerCase() ===
+              "available"
+        ).length
+      );
+
+      setLastUpdated(
+        new Date().toLocaleString()
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    };
-
-    // Statistics
-    fetch("http://127.0.0.1:5000/api/auth/stats", {
-      headers,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => setStats(data))
-      .catch(console.error);
-
-    // Blood Requests
-    fetch("http://127.0.0.1:5000/api/blood-requests/", {
-      headers,
-    })
-      .then(async (res) => {
-        const data = await res.json();
-
-        if (!res.ok) {
-          console.error(data);
-          setRequests([]);
-          return;
-        }
-
-        setRequests(Array.isArray(data) ? data : []);
-      })
-      .catch((err) => {
-        console.error(err);
-        setRequests([]);
-      });
-
-    // Users
-    fetch("http://127.0.0.1:5000/api/auth/users", {
-      headers,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => {
-        setUsers(Array.isArray(data) ? data : []);
-      })
-      .catch(console.error);
-
-    // Donors
-    fetch("http://127.0.0.1:5000/api/auth/donors", {
-      headers,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => {
-        const donorList = Array.isArray(data) ? data : [];
-
-        setAvailableDonors(
-          donorList.filter(
-            (donor) =>
-              donor.availability &&
-              donor.availability.toLowerCase() === "available"
-          ).length
-        );
-      })
-      .catch(console.error);
+    loadData();
   }, []);
 
-  const safeRequests = Array.isArray(requests) ? requests : [];
-  const safeUsers = Array.isArray(users) ? users : [];
+  const safeRequests = Array.isArray(requests)
+    ? requests
+    : [];
+
+  const safeUsers = Array.isArray(users)
+    ? users
+    : [];
 
   const completed = safeRequests.filter(
     (req) => req.status === "Completed"
@@ -117,8 +149,7 @@ function Reports() {
       value: stats.total_patients,
     },
     {
-      name:
-        "Admins",
+      name: "Admins",
       value:
         stats.total_users -
         stats.total_donors -
@@ -146,10 +177,12 @@ function Reports() {
     }
   });
 
-  const bloodChart = Object.keys(groups).map((group) => ({
-    name: group,
-    value: groups[group],
-  }));
+  const bloodChart = Object.keys(groups).map(
+    (group) => ({
+      name: group,
+      value: groups[group],
+    })
+  );
 
   const COLORS = [
     "#ef4444",
@@ -158,18 +191,209 @@ function Reports() {
     "#f59e0b",
   ];
 
-  return (
+    // ==========================================
+  // EXPORT PDF REPORT
+  // ==========================================
+
+  const exportPDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(20);
+    doc.text("LifeLink Blood Donation System", 14, 18);
+
+    doc.setFontSize(15);
+    doc.text("System Report", 14, 28);
+
+    doc.setFontSize(11);
+
+    doc.text(
+      `Generated: ${new Date().toLocaleString()}`,
+      14,
+      38
+    );
+
+    autoTable(doc, {
+      startY: 48,
+      head: [["Statistic", "Value"]],
+      body: [
+        ["Total Users", stats.total_users],
+        ["Total Donors", stats.total_donors],
+        ["Available Donors", availableDonors],
+        ["Total Patients", stats.total_patients],
+        ["Blood Requests", safeRequests.length],
+        ["Completed Requests", completed],
+        ["Pending Requests", pending],
+      ],
+    });
+
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 15,
+      head: [
+        [
+          "ID",
+          "Name",
+          "Email",
+          "Blood Group",
+          "Location",
+          "Availability",
+        ],
+      ],
+      body: safeUsers.map((user) => [
+        user.id,
+        user.full_name,
+        user.email,
+        user.blood_group || "-",
+        user.location || "-",
+        user.availability || "-",
+      ]),
+    });
+
+    doc.save("LifeLink_Report.pdf");
+  };
+
+  // ==========================================
+  // EXPORT EXCEL REPORT
+  // ==========================================
+
+  const exportExcel = () => {
+    const workbook = XLSX.utils.book_new();
+
+    // ========================
+    // SUMMARY SHEET
+    // ========================
+
+    const summary = [
+      {
+        Statistic: "Total Users",
+        Value: stats.total_users,
+      },
+      {
+        Statistic: "Total Donors",
+        Value: stats.total_donors,
+      },
+      {
+        Statistic: "Available Donors",
+        Value: availableDonors,
+      },
+      {
+        Statistic: "Total Patients",
+        Value: stats.total_patients,
+      },
+      {
+        Statistic: "Blood Requests",
+        Value: safeRequests.length,
+      },
+      {
+        Statistic: "Completed Requests",
+        Value: completed,
+      },
+      {
+        Statistic: "Pending Requests",
+        Value: pending,
+      },
+      {
+        Statistic: "Generated",
+        Value: new Date().toLocaleString(),
+      },
+    ];
+
+    const summarySheet =
+      XLSX.utils.json_to_sheet(summary);
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      summarySheet,
+      "Summary"
+    );
+
+    // ========================
+    // USERS SHEET
+    // ========================
+
+    const usersSheet =
+      XLSX.utils.json_to_sheet(safeUsers);
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      usersSheet,
+      "Users"
+    );
+
+    // ========================
+    // REQUESTS SHEET
+    // ========================
+
+    const requestsSheet =
+      XLSX.utils.json_to_sheet(safeRequests);
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      requestsSheet,
+      "Blood Requests"
+    );
+
+    XLSX.writeFile(
+      workbook,
+      "LifeLink_Report.xlsx"
+    );
+  };
+
+    return (
     <div className="space-y-8">
+
+      {/* ================= HEADER ================= */}
+
       <div className="bg-gradient-to-r from-red-700 to-red-500 text-white rounded-xl p-8 shadow-lg">
-        <h1 className="text-4xl font-bold">
-          📊 System Reports
-        </h1>
-        <p className="mt-2">
-          Monitor LifeLink blood donation activities.
-        </p>
+
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+
+          <div>
+            <h1 className="text-4xl font-bold">
+              📊 System Reports
+            </h1>
+
+            <p className="mt-2 text-red-100">
+              Monitor LifeLink Blood Donation System Performance
+            </p>
+
+            <p className="mt-2 text-sm">
+              Last Updated: {lastUpdated}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+
+            <button
+              onClick={loadData}
+              className="bg-white text-red-600 px-5 py-2 rounded-lg font-semibold hover:bg-gray-100"
+            >
+              🔄 Refresh
+            </button>
+
+            <button
+              onClick={exportPDF}
+              className="bg-green-600 px-5 py-2 rounded-lg hover:bg-green-700"
+            >
+              📄 Export PDF
+            </button>
+
+            <button
+              onClick={exportExcel}
+              className="bg-blue-600 px-5 py-2 rounded-lg hover:bg-blue-700"
+            >
+              📊 Export Excel
+            </button>
+
+          </div>
+
+        </div>
+
       </div>
 
+      {/* ================= SUMMARY CARDS ================= */}
+
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
         <StatCard
           title="Total Users"
           value={stats.total_users}
@@ -199,100 +423,155 @@ function Reports() {
         />
 
         <StatCard
-          title="Completed"
+          title="Completed Requests"
           value={completed}
           icon="✅"
           color="bg-emerald-500"
         />
 
         <StatCard
-          title="Pending"
+          title="Pending Requests"
           value={pending}
           icon="⏳"
           color="bg-yellow-500"
         />
+
       </div>
 
+      {/* ================= CHARTS ================= */}
+
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="text-xl font-bold mb-4">
+
+        <div className="bg-white rounded-xl shadow-lg p-6">
+
+          <h2 className="text-xl font-bold mb-5">
             User Distribution
           </h2>
 
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={320}>
             <PieChart>
+
               <Pie
                 data={userChart}
                 dataKey="value"
-                outerRadius={100}
+                outerRadius={110}
                 label
               >
-                {userChart.map((item, index) => (
+
+                {userChart.map((entry, index) => (
                   <Cell
                     key={index}
                     fill={COLORS[index % COLORS.length]}
                   />
                 ))}
+
               </Pie>
 
               <Tooltip />
+
             </PieChart>
           </ResponsiveContainer>
+
         </div>
 
-        <div className="bg-white shadow rounded-xl p-6">
-          <h2 className="text-xl font-bold mb-4">
-            Request Status
+        <div className="bg-white rounded-xl shadow-lg p-6">
+
+          <h2 className="text-xl font-bold mb-5">
+            Blood Request Status
           </h2>
 
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={320}>
+
             <BarChart data={requestChart}>
+
               <XAxis dataKey="name" />
+
               <YAxis allowDecimals={false} />
+
               <Tooltip />
+
               <Bar
                 dataKey="value"
                 fill="#dc2626"
               />
+
             </BarChart>
+
           </ResponsiveContainer>
+
         </div>
+
       </div>
 
-      <div className="bg-white shadow rounded-xl p-6">
+      {/* ================= BLOOD GROUP CHART ================= */}
+
+      <div className="bg-white rounded-xl shadow-lg p-6">
+
         <h2 className="text-xl font-bold mb-5">
           Blood Group Distribution
         </h2>
 
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={320}>
+
           <BarChart data={bloodChart}>
+
             <XAxis dataKey="name" />
+
             <YAxis allowDecimals={false} />
+
             <Tooltip />
+
             <Bar
               dataKey="value"
               fill="#dc2626"
             />
+
           </BarChart>
+
         </ResponsiveContainer>
+
       </div>
+
+            {/* ================= FOOTER ================= */}
+
+      <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+        <p className="text-gray-600">
+          🩸 LifeLink Blood Donation Management System
+        </p>
+
+        <p className="text-sm text-gray-500 mt-2">
+          Report generated on {lastUpdated}
+        </p>
+      </div>
+
     </div>
   );
 }
 
+/* ===========================================================
+   STAT CARD COMPONENT
+=========================================================== */
+
 function StatCard({ title, value, icon, color }) {
   return (
-    <div className="bg-white shadow rounded-xl p-6 flex justify-between items-center">
+    <div className="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between hover:shadow-xl transition duration-300">
+
       <div>
-        <p className="text-gray-500">{title}</p>
-        <h2 className="text-4xl font-bold">{value}</h2>
+        <p className="text-gray-500 text-sm">
+          {title}
+        </p>
+
+        <h2 className="text-4xl font-bold mt-2">
+          {value}
+        </h2>
       </div>
 
       <div
-        className={`${color} text-white text-3xl rounded-full w-16 h-16 flex items-center justify-center`}
+        className={`${color} w-16 h-16 rounded-full flex items-center justify-center text-white text-3xl shadow`}
       >
         {icon}
       </div>
+
     </div>
   );
 }
