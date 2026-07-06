@@ -5,25 +5,64 @@ from flask import Flask
 from flask_cors import CORS
 
 from config import Config
-from extensions import db, jwt, mail
 
-from routes.auth_routes import register_auth_routes
-from routes.blood_request_routes import blood_request_bp
-from routes.donation_routes import donation_bp
+from extensions import (
+    db,
+    jwt,
+    mail,
+    socketio
+)
 
+# ==================================================
+# CREATE APP (MUST BE FIRST)
+# ==================================================
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 # ==================================================
-# EXTENSIONS
+# CORS
 # ==================================================
 
-CORS(app)
+CORS(app, supports_credentials=True)
+
+# ==================================================
+# INIT EXTENSIONS
+# ==================================================
 
 db.init_app(app)
 jwt.init_app(app)
 mail.init_app(app)
+
+socketio.init_app(
+    app,
+    cors_allowed_origins="*"
+)
+
+# ==================================================
+# IMPORT MODELS (IMPORTANT FOR create_all)
+# ==================================================
+
+from models.user import User
+from models.conversation import Conversation
+from models.message import Message
+
+# ==================================================
+# IMPORT ROUTES & SOCKETS
+# ==================================================
+
+from routes.auth_routes import register_auth_routes
+from routes.blood_request_routes import blood_request_bp
+from routes.donation_routes import donation_bp
+from routes.chat_routes import chat_bp
+
+from socket_events import register_socket_events
+
+# ==================================================
+# REGISTER SOCKET EVENTS
+# ==================================================
+
+register_socket_events(socketio)
 
 # ==================================================
 # REGISTER BLUEPRINTS
@@ -41,16 +80,20 @@ app.register_blueprint(
     url_prefix="/api/donations"
 )
 
+app.register_blueprint(
+    chat_bp,
+    url_prefix="/api/chat"
+)
+
 # ==================================================
-# DATABASE
+# DATABASE INIT
 # ==================================================
 
 with app.app_context():
-
     db.create_all()
 
     print("\n======================================")
-    print("🩸 LifeLink Backend Started")
+    print("🩸 LifeLink Backend Started Successfully")
     print("Database:", db.engine.url)
     print("======================================\n")
 
@@ -61,15 +104,16 @@ with app.app_context():
 @app.route("/")
 def home():
     return {
-        "message": "🩸 LifeLink Blood Donation API is Running Successfully"
+        "message": "🩸 LifeLink API Running Successfully"
     }
 
 # ==================================================
-# RUN APPLICATION
+# RUN SERVER
 # ==================================================
 
 if __name__ == "__main__":
-    app.run(
+    socketio.run(
+        app,
         host="127.0.0.1",
         port=5000,
         debug=True
