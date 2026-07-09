@@ -5,6 +5,9 @@ from extensions import db
 from models.message import Message
 from models.conversation import Conversation
 
+# Store online users
+online_users = set()
+
 
 def register_socket_events(socketio):
 
@@ -14,9 +17,37 @@ def register_socket_events(socketio):
 
     @socketio.on("connect")
     def connect():
+
         print("\n==============================")
         print("✅ Client Connected")
         print("==============================\n")
+
+    # ==========================================================
+    # USER ONLINE
+    # ==========================================================
+
+    @socketio.on("user_online")
+    def user_online(data):
+
+        user_id = data.get("user_id")
+
+        if not user_id:
+            return
+
+        room = f"user_{user_id}"
+
+        join_room(room)
+
+        online_users.add(user_id)
+
+        socketio.emit(
+            "user_online",
+            {
+                "user_id": user_id
+            }
+        )
+
+        print(f"🟢 User {user_id} Online")
 
     # ==========================================================
     # DISCONNECT
@@ -24,12 +55,13 @@ def register_socket_events(socketio):
 
     @socketio.on("disconnect")
     def disconnect():
+
         print("\n==============================")
         print("❌ Client Disconnected")
         print("==============================\n")
 
     # ==========================================================
-    # JOIN CONVERSATION ROOM
+    # JOIN CHAT ROOM
     # ==========================================================
 
     @socketio.on("join_room")
@@ -38,7 +70,6 @@ def register_socket_events(socketio):
         conversation_id = data.get("conversation_id")
 
         if not conversation_id:
-            print("❌ conversation_id missing")
             return
 
         room = f"conversation_{conversation_id}"
@@ -48,7 +79,7 @@ def register_socket_events(socketio):
         print(f"✅ Joined Room -> {room}")
 
     # ==========================================================
-    # LEAVE ROOM
+    # LEAVE CHAT ROOM
     # ==========================================================
 
     @socketio.on("leave_room")
@@ -66,6 +97,58 @@ def register_socket_events(socketio):
         print(f"⬅ Left Room -> {room}")
 
     # ==========================================================
+    # TYPING...
+    # ==========================================================
+
+    @socketio.on("typing")
+    def typing(data):
+
+        conversation_id = data.get("conversation_id")
+        sender_id = data.get("sender_id")
+
+        socketio.emit(
+
+            "typing",
+
+            {
+
+                "sender_id": sender_id
+
+            },
+
+            room=f"conversation_{conversation_id}",
+
+            include_self=False
+
+        )
+
+    # ==========================================================
+    # STOP TYPING
+    # ==========================================================
+
+    @socketio.on("stop_typing")
+    def stop_typing(data):
+
+        conversation_id = data.get("conversation_id")
+        sender_id = data.get("sender_id")
+
+        socketio.emit(
+
+            "stop_typing",
+
+            {
+
+                "sender_id": sender_id
+
+            },
+
+            room=f"conversation_{conversation_id}",
+
+            include_self=False
+
+        )
+
+    # ==========================================================
     # SEND MESSAGE
     # ==========================================================
 
@@ -73,8 +156,7 @@ def register_socket_events(socketio):
     def send_message(data):
 
         print("\n======================================")
-        print("📨 NEW MESSAGE RECEIVED")
-        print("======================================")
+        print("📨 NEW MESSAGE")
         print(data)
 
         conversation_id = data.get("conversation_id")
@@ -82,22 +164,15 @@ def register_socket_events(socketio):
         receiver_id = data.get("receiver_id")
         message_text = data.get("message")
 
-        if (
-            conversation_id is None
-            or sender_id is None
-            or receiver_id is None
-            or not message_text
-        ):
-            print("❌ Invalid payload")
+        if not all([conversation_id, sender_id, receiver_id, message_text]):
+            print("❌ Invalid Payload")
             return
 
         conversation = Conversation.query.get(conversation_id)
 
         if not conversation:
-            print("❌ Conversation not found")
+            print("❌ Conversation Not Found")
             return
-
-        # Save message
 
         new_message = Message(
 
@@ -131,23 +206,13 @@ def register_socket_events(socketio):
 
             "message": new_message.message,
 
-            "is_read": new_message.is_read,
+            "created_at": new_message.created_at.isoformat(),
 
-            "created_at": new_message.created_at.isoformat()
+            "is_read": False
 
         }
 
         room = f"conversation_{conversation_id}"
-
-        print("\n========== MESSAGE SAVED ==========")
-        print("ID:", new_message.id)
-        print("Conversation:", conversation_id)
-        print("Sender:", sender_id)
-        print("Receiver:", receiver_id)
-        print("Room:", room)
-        print("Message:", message_text)
-
-        # Broadcast to EVERYONE in this conversation
 
         socketio.emit(
 
@@ -159,5 +224,70 @@ def register_socket_events(socketio):
 
         )
 
-        print("✅ Message Broadcast Successfully")
-        print("======================================\n")
+        # Delivered notification
+        socketio.emit(
+
+            "message_delivered",
+
+            {
+
+                "message_id": new_message.id
+
+            },
+
+            room=f"user_{sender_id}"
+
+        )
+
+        print(f"✅ Message {new_message.id} Delivered")
+
+    # ==========================================================
+    # MARK AS READ
+    # ==========================================================
+
+    @socketio.on("mark_read")
+    def mark_read(data):
+
+        conversation_id = data.get("conversation_id")
+        reader_id = data.get("user_id")
+
+        if not conversation_id:
+            return
+
+        unread = Message.query.filter_by(
+
+            conversation_id=conversation_id,
+
+            receiver_id=reader_id,
+
+            is_read=False
+
+        ).all()
+
+        ids = []
+
+        for msg in unread:
+
+            msg.is_read = True
+
+            ids.append(msg.id)
+
+        db.session.commit()
+
+        socketio.emit(
+
+            "messages_read",
+
+            {
+
+                "conversation_id": conversation_id,
+
+                "message_ids": ids
+
+            },
+
+            room=f"conversation_{conversation_id}"
+
+        )
+
+        print(f"👀 {len(ids)} messages marked as read")
