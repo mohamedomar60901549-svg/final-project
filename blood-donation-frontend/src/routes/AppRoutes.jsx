@@ -30,7 +30,7 @@ import PatientDashboard from "../pages/patient/PatientDashboard";
 import CreateRequest from "../pages/patient/CreateRequest";
 import MyRequests from "../pages/patient/MyRequests";
 import FindDonors from "../pages/patient/FindDonors";
-import PatientChat from "../pages/patient/PatientChatPage";
+import PatientChatPage from "../pages/patient/PatientChatPage";
 
 // ================= ADMIN =================
 import AdminLayout from "../layouts/AdminLayout";
@@ -38,15 +38,16 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageUsers from "../pages/admin/ManageUsers";
 import ManageDonors from "../pages/admin/ManageDonors";
 import BloodRequests from "../pages/admin/BloodRequests";
-import Reports from "../pages/admin/Reports";
 import ManageDonations from "../pages/admin/ManageDonations";
-import AdminChat from "../pages/admin/AdminChatPage";
+import Reports from "../pages/admin/Reports";
+import AdminChatPage from "../pages/admin/AdminChatPage";
 
 function AppRoutes() {
   return (
     <Routes>
 
-      {/* ================= PUBLIC ROUTES ================= */}
+      {/* ================= PUBLIC ================= */}
+
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
@@ -58,7 +59,8 @@ function AppRoutes() {
         <Route path="resend-verification" element={<ResendVerification />} />
       </Route>
 
-      {/* ================= DONOR ROUTES ================= */}
+      {/* ================= DONOR ================= */}
+
       <Route path="/donor" element={<DonorRoute />}>
         <Route element={<DonorLayout />}>
           <Route path="dashboard" element={<DonorDashboard />} />
@@ -69,18 +71,20 @@ function AppRoutes() {
         </Route>
       </Route>
 
-      {/* ================= PATIENT ROUTES ================= */}
+      {/* ================= PATIENT ================= */}
+
       <Route path="/patient" element={<PatientRoute />}>
         <Route element={<PatientLayout />}>
           <Route path="dashboard" element={<PatientDashboard />} />
           <Route path="request" element={<CreateRequest />} />
           <Route path="requests" element={<MyRequests />} />
           <Route path="donors" element={<FindDonors />} />
-          <Route path="chat" element={<PatientChat />} />
+          <Route path="chat" element={<PatientChatPage />} />
         </Route>
       </Route>
 
-      {/* ================= ADMIN ROUTES ================= */}
+      {/* ================= ADMIN ================= */}
+
       <Route path="/admin" element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
@@ -89,7 +93,7 @@ function AppRoutes() {
           <Route path="requests" element={<BloodRequests />} />
           <Route path="donations" element={<ManageDonations />} />
           <Route path="reports" element={<Reports />} />
-          <Route path="chat" element={<AdminChat />} />
+          <Route path="chat" element={<AdminChatPage />} />
         </Route>
       </Route>
 

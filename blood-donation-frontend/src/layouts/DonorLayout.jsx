@@ -50,6 +50,14 @@ function DonorLayout() {
             Donate Blood
           </Link>
 
+          {/* 💬 Chat */}
+          <Link
+            to="/donor/chat"
+            className="block hover:bg-red-600 p-2 rounded"
+          >
+            💬 Chat
+          </Link>
+
           <button
             onClick={handleLogout}
             className="mt-10 bg-white text-red-700 px-4 py-2 rounded w-full"

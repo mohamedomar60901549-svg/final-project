@@ -5,12 +5,10 @@ function AdminLayout() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
     navigate("/login");
-
   };
 
   return (
@@ -68,9 +66,17 @@ function AdminLayout() {
             Reports
           </Link>
 
+          {/* ✅ NEW CHAT MENU */}
+          <Link
+            to="/admin/chat"
+            className="block hover:bg-gray-700 p-2 rounded"
+          >
+            💬 Chat
+          </Link>
+
           <button
             onClick={handleLogout}
-            className="mt-10 bg-white text-gray-900 px-4 py-2 rounded hover:bg-gray-200"
+            className="mt-10 w-full bg-white text-gray-900 px-4 py-2 rounded hover:bg-gray-200"
           >
             Logout
           </button>

@@ -5,16 +5,10 @@ from flask import Flask
 from flask_cors import CORS
 
 from config import Config
-
-from extensions import (
-    db,
-    jwt,
-    mail,
-    socketio
-)
+from extensions import db, jwt, mail, socketio
 
 # ==================================================
-# CREATE APP (MUST BE FIRST)
+# CREATE APP
 # ==================================================
 
 app = Flask(__name__)
@@ -36,11 +30,12 @@ mail.init_app(app)
 
 socketio.init_app(
     app,
-    cors_allowed_origins="*"
+    cors_allowed_origins="*",
+    async_mode="threading"   # ✅ IMPORTANT FIX (avoids eventlet issues)
 )
 
 # ==================================================
-# IMPORT MODELS (IMPORTANT FOR create_all)
+# IMPORT MODELS (ENSURE TABLE CREATION)
 # ==================================================
 
 from models.user import User
@@ -55,17 +50,16 @@ from routes.auth_routes import register_auth_routes
 from routes.blood_request_routes import blood_request_bp
 from routes.donation_routes import donation_bp
 from routes.chat_routes import chat_bp
-
 from socket_events import register_socket_events
 
 # ==================================================
-# REGISTER SOCKET EVENTS
+# SOCKET EVENTS
 # ==================================================
 
 register_socket_events(socketio)
 
 # ==================================================
-# REGISTER BLUEPRINTS
+# BLUEPRINTS
 # ==================================================
 
 register_auth_routes(app)
@@ -91,7 +85,6 @@ app.register_blueprint(
 
 with app.app_context():
     db.create_all()
-
     print("\n======================================")
     print("🩸 LifeLink Backend Started Successfully")
     print("Database:", db.engine.url)

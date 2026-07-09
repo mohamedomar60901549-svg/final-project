@@ -1,3 +1,15 @@
-export default function DonorChatPage() {
-  return <h2>Donor Chat Page</h2>;
+import ChatBox from "../../components/ChatBox";
+
+function DonorChatPage() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-4">
+        💬 Donor Chat
+      </h1>
+
+      <ChatBox />
+    </div>
+  );
 }
+
+export default DonorChatPage;
