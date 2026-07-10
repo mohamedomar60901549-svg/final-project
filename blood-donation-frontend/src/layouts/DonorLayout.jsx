@@ -6,15 +6,14 @@ function DonorLayout() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
     navigate("/login");
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
 
       {/* Sidebar */}
-      <aside className="w-64 bg-red-700 text-white p-6">
+      <aside className="fixed top-0 left-0 w-64 h-screen bg-red-700 text-white p-6 overflow-y-auto">
 
         <h1 className="text-2xl font-bold mb-8">
           🩸 LifeLink
@@ -50,7 +49,6 @@ function DonorLayout() {
             Donate Blood
           </Link>
 
-          {/* 💬 Chat */}
           <Link
             to="/donor/chat"
             className="block hover:bg-red-600 p-2 rounded"
@@ -60,7 +58,7 @@ function DonorLayout() {
 
           <button
             onClick={handleLogout}
-            className="mt-10 bg-white text-red-700 px-4 py-2 rounded w-full"
+            className="mt-10 bg-white text-red-700 px-4 py-2 rounded w-full hover:bg-gray-100"
           >
             Logout
           </button>
@@ -70,7 +68,7 @@ function DonorLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8">
+      <main className="ml-64 min-h-screen p-8 overflow-y-auto">
         <Outlet />
       </main>
 

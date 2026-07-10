@@ -15,18 +15,16 @@ chat_bp = Blueprint("chat", __name__)
 
 @chat_bp.route("/conversation/<int:other_user_id>", methods=["POST"])
 @jwt_required()
-def create_conversation(other_user_id):
+def create_conversation():
 
     current_user_id = int(get_jwt_identity())
 
-    current_user = User.query.get(current_user_id)
     other_user = User.query.get(other_user_id)
-
-    if not current_user:
-        return jsonify({"message": "Current user not found"}), 404
 
     if not other_user:
-        return jsonify({"message": "Other user not found"}), 404
+        return jsonify({
+            "message": "User not found"
+        }), 404
 
     conversation = Conversation.query.filter(
 
@@ -49,48 +47,6 @@ def create_conversation(other_user_id):
         conversation = Conversation(
             user1_id=current_user_id,
             user2_id=other_user_id
-        )
-
-        db.session.add(conversation)
-        db.session.commit()
-
-    return jsonify({
-        "conversation_id": conversation.id
-    })
-    
-
-    other_user_id = int(other_user_id)
-
-    current_user = User.query.get(current_user_id)
-    other_user = User.query.get(other_user_id)
-
-    if not current_user or not other_user:
-        return jsonify({"message": "User not found"}), 404
-
-    conversation = Conversation.query.filter(
-
-        (
-            (Conversation.user1_id == current_user_id) &
-            (Conversation.user2_id == other_user_id)
-        )
-
-        |
-
-        (
-            (Conversation.user1_id == other_user_id) &
-            (Conversation.user2_id == current_user_id)
-        )
-
-    ).first()
-
-    if not conversation:
-
-        conversation = Conversation(
-
-            user1_id=current_user_id,
-
-            user2_id=other_user_id
-
         )
 
         db.session.add(conversation)
@@ -104,7 +60,7 @@ def create_conversation(other_user_id):
 
 
 # =====================================================
-# GET ALL MESSAGES
+# GET MESSAGES
 # =====================================================
 
 @chat_bp.route("/messages/<int:conversation_id>", methods=["GET"])
@@ -112,13 +68,9 @@ def create_conversation(other_user_id):
 def get_messages(conversation_id):
 
     messages = Message.query.filter_by(
-
         conversation_id=conversation_id
-
     ).order_by(
-
         Message.created_at.asc()
-
     ).all()
 
     return jsonify([
@@ -164,58 +116,97 @@ def my_conversations():
 
         (Conversation.user2_id == current_user_id)
 
+    ).order_by(
+
+        Conversation.updated_at.desc()
+
     ).all()
 
-    data = []
+    result = []
 
-    for convo in conversations:
+    for conversation in conversations:
 
-        other_id = (
+        if conversation.user1_id == current_user_id:
+            other = User.query.get(conversation.user2_id)
+        else:
+            other = User.query.get(conversation.user1_id)
 
-            convo.user2_id
+        last_message = Message.query.filter_by(
+            conversation_id=conversation.id
+        ).order_by(
+            Message.created_at.desc()
+        ).first()
 
-            if convo.user1_id == current_user_id
+        unread = Message.query.filter_by(
+            conversation_id=conversation.id,
+            receiver_id=current_user_id,
+            is_read=False
+        ).count()
 
-            else convo.user1_id
+        result.append({
 
-        )
-
-        other = User.query.get(other_id)
-
-        data.append({
-
-            "conversation_id": convo.id,
+            "conversation_id": conversation.id,
 
             "user_id": other.id,
 
             "full_name": other.full_name,
 
-            "role": other.role,
-
             "email": other.email,
 
-            "created_at": convo.created_at.isoformat()
+            "role": other.role,
+
+            "last_message":
+                last_message.message if last_message else "",
+
+            "last_time":
+                last_message.created_at.isoformat()
+                if last_message else None,
+
+            "unread": unread
 
         })
 
-    return jsonify(data)
+    return jsonify(result)
 
 
 # =====================================================
-# USERS (ADMIN SIDEBAR)
+# USERS FOR SIDEBAR
 # =====================================================
 
 @chat_bp.route("/users", methods=["GET"])
 @jwt_required()
 def get_users():
 
-    current_user_id = int(get_jwt_identity())
+    current_user = User.query.get(
+        int(get_jwt_identity())
+    )
 
-    users = User.query.filter(
+    if not current_user:
+        return jsonify([])
 
-        User.id != current_user_id
+    # -----------------------------
+    # ADMIN
+    # -----------------------------
 
-    ).all()
+    if current_user.role == "admin":
+
+        users = User.query.filter(
+            User.id != current_user.id
+        ).order_by(
+            User.full_name
+        ).all()
+
+    # -----------------------------
+    # DONOR / PATIENT
+    # -----------------------------
+
+    else:
+
+        users = User.query.filter_by(
+            role="admin"
+        ).order_by(
+            User.full_name
+        ).all()
 
     return jsonify([
 

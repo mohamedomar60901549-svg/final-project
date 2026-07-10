@@ -4,8 +4,15 @@ function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
 
+  // View Mode
+  // "table" or "card"
+  const [view, setView] = useState("table");
+
   const token = localStorage.getItem("token");
 
+  // ==========================================
+  // LOAD USERS
+  // ==========================================
   const loadUsers = async () => {
     try {
       const response = await fetch(
@@ -22,7 +29,12 @@ function ManageUsers() {
       }
 
       const data = await response.json();
-      setUsers(data);
+
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else {
+        setUsers([]);
+      }
     } catch (error) {
       console.log("Error loading users:", error);
     }
@@ -32,6 +44,9 @@ function ManageUsers() {
     loadUsers();
   }, []);
 
+  // ==========================================
+  // DELETE USER
+  // ==========================================
   const deleteUser = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this user?"
@@ -58,6 +73,9 @@ function ManageUsers() {
     }
   };
 
+  // ==========================================
+  // UPDATE USER
+  // ==========================================
   const updateUser = async () => {
     try {
       const response = await fetch(
@@ -82,21 +100,64 @@ function ManageUsers() {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Manage Users 👥
-      </h1>
+    <div className="p-6">
+
+      {/* ========================= */}
+      {/* PAGE TITLE */}
+      {/* ========================= */}
+
+      <div className="flex justify-between items-center mb-6">
+
+        <h1 className="text-3xl font-bold text-gray-800">
+          Manage Users 👥
+        </h1>
+
+        {/* View Switch */}
+        <div className="flex gap-3">
+
+          <button
+            onClick={() => setView("table")}
+            className={`px-4 py-2 rounded-lg font-semibold transition ${
+              view === "table"
+                ? "bg-red-600 text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
+          >
+            📋 Table View
+          </button>
+
+          <button
+            onClick={() => setView("card")}
+            className={`px-4 py-2 rounded-lg font-semibold transition ${
+              view === "card"
+                ? "bg-red-600 text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
+          >
+            🃏 Card View
+          </button>
+
+        </div>
+
+      </div>
+
+            {/* ===================================== */}
+      {/* EDIT USER FORM */}
+      {/* ===================================== */}
 
       {editingUser && (
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-bold mb-4">
-            Edit User
+        <div className="bg-white shadow-lg rounded-xl p-6 mb-8 border">
+
+          <h2 className="text-2xl font-bold mb-6">
+            ✏️ Edit User
           </h2>
 
           <div className="grid md:grid-cols-2 gap-4">
 
             <input
-              className="border p-3 rounded"
+              type="text"
+              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="Full Name"
               value={editingUser.full_name}
               onChange={(e) =>
                 setEditingUser({
@@ -104,11 +165,12 @@ function ManageUsers() {
                   full_name: e.target.value,
                 })
               }
-              placeholder="Full Name"
             />
 
             <input
-              className="border p-3 rounded"
+              type="email"
+              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="Email"
               value={editingUser.email}
               onChange={(e) =>
                 setEditingUser({
@@ -116,11 +178,12 @@ function ManageUsers() {
                   email: e.target.value,
                 })
               }
-              placeholder="Email"
             />
 
             <input
-              className="border p-3 rounded"
+              type="text"
+              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="Phone Number"
               value={editingUser.phone || ""}
               onChange={(e) =>
                 setEditingUser({
@@ -128,11 +191,12 @@ function ManageUsers() {
                   phone: e.target.value,
                 })
               }
-              placeholder="Phone Number"
             />
 
             <input
-              className="border p-3 rounded"
+              type="text"
+              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="Blood Group"
               value={editingUser.blood_group || ""}
               onChange={(e) =>
                 setEditingUser({
@@ -140,11 +204,12 @@ function ManageUsers() {
                   blood_group: e.target.value,
                 })
               }
-              placeholder="Blood Group"
             />
 
             <input
-              className="border p-3 rounded"
+              type="text"
+              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="Location"
               value={editingUser.location || ""}
               onChange={(e) =>
                 setEditingUser({
@@ -152,124 +217,282 @@ function ManageUsers() {
                   location: e.target.value,
                 })
               }
-              placeholder="Location"
             />
+
+            <select
+              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+              value={editingUser.role}
+              onChange={(e) =>
+                setEditingUser({
+                  ...editingUser,
+                  role: e.target.value,
+                })
+              }
+            >
+              <option value="donor">Donor</option>
+              <option value="patient">Patient</option>
+              <option value="admin">Admin</option>
+            </select>
 
           </div>
 
-          <select
-            className="border p-3 rounded mt-4"
-            value={editingUser.role}
-            onChange={(e) =>
-              setEditingUser({
-                ...editingUser,
-                role: e.target.value,
-              })
-            }
-          >
-            <option value="donor">Donor</option>
-            <option value="patient">Patient</option>
-            <option value="admin">Admin</option>
-          </select>
+          <div className="mt-6 flex gap-3">
 
-          <div className="mt-4">
             <button
               onClick={updateUser}
-              className="bg-green-600 text-white px-4 py-2 rounded mr-3"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition"
             >
-              Save Changes
+              💾 Save Changes
             </button>
 
             <button
               onClick={() => setEditingUser(null)}
-              className="bg-gray-500 text-white px-4 py-2 rounded"
+              className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition"
             >
               Cancel
             </button>
+
           </div>
+
         </div>
       )}
 
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <table className="w-full">
+      {/* ===================================== */}
+      {/* TABLE VIEW */}
+      {/* ===================================== */}
 
-          <thead className="bg-red-600 text-white">
-            <tr>
-              <th className="p-4 text-left">ID</th>
-              <th className="p-4 text-left">Name</th>
-              <th className="p-4 text-left">Email</th>
-              <th className="p-4 text-left">Phone</th>
-              <th className="p-4 text-left">Blood Group</th>
-              <th className="p-4 text-left">Location</th>
-              <th className="p-4 text-left">Role</th>
-              <th className="p-4 text-left">Action</th>
-            </tr>
-          </thead>
+      {view === "table" ? (
 
-          <tbody>
+        <div className="bg-white shadow-lg rounded-xl overflow-x-auto">
 
-                        {users.map((user) => (
-              <tr
+          <table className="min-w-full">
+
+            <thead className="bg-red-600 text-white">
+
+              <tr>
+
+                <th className="p-4 text-left">ID</th>
+
+                <th className="p-4 text-left">
+                  Full Name
+                </th>
+
+                <th className="p-4 text-left">
+                  Email
+                </th>
+
+                <th className="p-4 text-left">
+                  Phone
+                </th>
+
+                <th className="p-4 text-left">
+                  Blood Group
+                </th>
+
+                <th className="p-4 text-left">
+                  Location
+                </th>
+
+                <th className="p-4 text-left">
+                  Role
+                </th>
+
+                <th className="p-4 text-center">
+                  Actions
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+  {users.length > 0 ? (
+    users.map((user) => (
+      <tr
+        key={user.id}
+        className="border-b hover:bg-gray-50 transition"
+      >
+        <td className="p-4">
+          {user.id}
+        </td>
+
+        <td className="p-4 font-semibold">
+          {user.full_name}
+        </td>
+
+        <td className="p-4">
+          {user.email}
+        </td>
+
+        <td className="p-4">
+          {user.phone || "-"}
+        </td>
+
+        <td className="p-4">
+          <span className="font-bold text-red-600">
+            {user.blood_group || "-"}
+          </span>
+        </td>
+
+        <td className="p-4">
+          {user.location || "-"}
+        </td>
+
+        <td className="p-4">
+          <span
+            className={`font-bold px-3 py-1 rounded-full text-sm ${
+              user.role === "admin"
+                ? "bg-purple-100 text-purple-700"
+                : user.role === "donor"
+                ? "bg-green-100 text-green-700"
+                : "bg-blue-100 text-blue-700"
+            }`}
+          >
+            {user.role}
+          </span>
+        </td>
+
+        <td className="p-4">
+
+          <div className="flex justify-center gap-2">
+
+            <button
+              onClick={() => setEditingUser(user)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+            >
+              ✏️ Edit
+            </button>
+
+            <button
+              onClick={() => deleteUser(user.id)}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
+            >
+              🗑 Delete
+            </button>
+
+          </div>
+
+        </td>
+
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td
+        colSpan="8"
+        className="text-center py-10 text-gray-500"
+      >
+        No users found.
+      </td>
+    </tr>
+  )}
+
+</tbody>
+
+
+          </table>
+
+        </div>
+
+      ) : (
+
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+
+          {users.length > 0 ? (
+
+            users.map((user) => (
+
+              <div
                 key={user.id}
-                className="border-b hover:bg-gray-50"
+                className="bg-white rounded-xl shadow-lg p-6 border hover:shadow-xl transition"
               >
-                <td className="p-4">{user.id}</td>
 
-                <td className="p-4">
-                  {user.full_name}
-                </td>
+                <div className="flex justify-between items-center mb-4">
 
-                <td className="p-4">
-                  {user.email}
-                </td>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    {user.full_name}
+                  </h2>
 
-                <td className="p-4">
-                  {user.phone}
-                </td>
-
-                <td className="p-4 font-bold text-red-600">
-                  {user.blood_group}
-                </td>
-
-                <td className="p-4">
-                  {user.location}
-                </td>
-
-                <td className="p-4">
                   <span
-                    className={
-                      user.role === "donor"
-                        ? "text-green-600 font-bold"
-                        : user.role === "admin"
-                        ? "text-purple-600 font-bold"
-                        : "text-blue-600 font-bold"
-                    }
+                    className={`px-3 py-1 rounded-full text-sm font-bold ${
+                      user.role === "admin"
+                        ? "bg-purple-100 text-purple-700"
+                        : user.role === "donor"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700"
+                    }`}
                   >
                     {user.role}
                   </span>
-                </td>
 
-                <td className="p-4">
+                </div>
+
+                <div className="space-y-2 text-gray-700">
+
+                  <p>
+                    <strong>ID:</strong> {user.id}
+                  </p>
+
+                  <p>
+                    <strong>Email:</strong> {user.email}
+                  </p>
+
+                  <p>
+                    <strong>Phone:</strong>{" "}
+                    {user.phone || "-"}
+                  </p>
+
+                  <p>
+                    <strong>Blood Group:</strong>{" "}
+                    <span className="font-bold text-red-600">
+                      {user.blood_group || "-"}
+                    </span>
+                  </p>
+
+                  <p>
+                    <strong>Location:</strong>{" "}
+                    {user.location || "-"}
+                  </p>
+
+                </div>
+
+                <div className="flex gap-3 mt-6">
+
                   <button
                     onClick={() => setEditingUser(user)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded mr-2"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
                   >
-                    Edit
+                    ✏️ Edit
                   </button>
 
                   <button
                     onClick={() => deleteUser(user.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition"
                   >
-                    Delete
+                    🗑 Delete
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
 
-        </table>
-      </div>
+                </div>
+
+              </div>
+
+            ))
+
+          ) : (
+
+            <div className="col-span-full bg-white rounded-xl shadow-lg p-10 text-center text-gray-500">
+
+              No users found.
+
+            </div>
+
+          )}
+
+        </div>
+
+      )}
+
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 
+
 // ================= PUBLIC =================
+
 import PublicLayout from "../layouts/PublicLayout";
 
 import Home from "../pages/Home";
@@ -19,33 +21,43 @@ import ChangePassword from "../pages/ChangePassword";
 import ResendVerification from "../pages/ResendVerification";
 
 
+
 // ================= ROUTE GUARDS =================
+
 import PatientRoute from "../components/PatientRoute";
 import DonorRoute from "../components/DonorRoute";
 import AdminRoute from "../components/AdminRoute";
 
 
+
 // ================= DONOR =================
+
 import DonorLayout from "../layouts/DonorLayout";
 
 import DonorDashboard from "../pages/donor/DonorDashboard";
 import DonorProfile from "../pages/donor/DonorProfile";
 import DonationHistory from "../pages/donor/DonationHistory";
 import DonateBlood from "../pages/donor/DonateBlood";
+
 import DonorChatPage from "../pages/donor/DonorChatPage";
 
 
+
 // ================= PATIENT =================
+
 import PatientLayout from "../layouts/PatientLayout";
 
 import PatientDashboard from "../pages/patient/PatientDashboard";
 import CreateRequest from "../pages/patient/CreateRequest";
 import MyRequests from "../pages/patient/MyRequests";
 import FindDonors from "../pages/patient/FindDonors";
+
 import PatientChatPage from "../pages/patient/PatientChatPage";
 
 
+
 // ================= ADMIN =================
+
 import AdminLayout from "../layouts/AdminLayout";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
@@ -54,282 +66,316 @@ import ManageDonors from "../pages/admin/ManageDonors";
 import BloodRequests from "../pages/admin/BloodRequests";
 import ManageDonations from "../pages/admin/ManageDonations";
 import Reports from "../pages/admin/Reports";
+
 import AdminChatPage from "../pages/admin/AdminChatPage";
 
 
 
-function AppRoutes() {
+function AppRoutes(){
 
 
-  return (
+return (
 
-    <Routes>
+<Routes>
 
 
 
-      {/* =================================================
-          PUBLIC WEBSITE
-      ================================================= */}
+{/* =================================================
+    PUBLIC WEBSITE
+================================================= */}
 
 
-      <Route path="/" element={<PublicLayout />}>
+<Route path="/" element={<PublicLayout />}>
 
 
+<Route index element={<Home />} />
 
-        {/* HOME */}
+<Route path="about" element={<About />} />
 
-        <Route index element={<Home />} />
+<Route path="how-it-works" element={<HowItWorks />} />
 
+<Route path="hospitals" element={<Hospitals />} />
 
+<Route path="faq" element={<FAQ />} />
 
-        {/* WEBSITE PAGES */}
+<Route path="contact" element={<Contact />} />
 
-        <Route path="about" element={<About />} />
 
-        <Route 
-          path="how-it-works" 
-          element={<HowItWorks />} 
-        />
 
+{/* AUTH */}
 
-        <Route 
-          path="hospitals" 
-          element={<Hospitals />} 
-        />
+<Route path="login" element={<Login />} />
 
+<Route path="register" element={<Register />} />
 
-        <Route 
-          path="faq" 
-          element={<FAQ />} 
-        />
+<Route 
+path="forgot-password" 
+element={<ForgotPassword />} 
+/>
 
 
-        <Route 
-          path="contact" 
-          element={<Contact />} 
-        />
+<Route 
+path="reset-password/:token" 
+element={<ResetPassword />} 
+/>
 
 
+<Route 
+path="verify-email/:token" 
+element={<VerifyEmail />} 
+/>
 
-        {/* AUTH PAGES */}
 
-        <Route path="login" element={<Login />} />
+<Route 
+path="change-password" 
+element={<ChangePassword />} 
+/>
 
-        <Route path="register" element={<Register />} />
 
-        <Route 
-          path="forgot-password" 
-          element={<ForgotPassword />} 
-        />
+<Route 
+path="resend-verification" 
+element={<ResendVerification />} 
+/>
 
 
-        <Route 
-          path="reset-password/:token" 
-          element={<ResetPassword />} 
-        />
+</Route>
 
 
-        <Route 
-          path="verify-email/:token" 
-          element={<VerifyEmail />} 
-        />
 
 
-        <Route 
-          path="change-password" 
-          element={<ChangePassword />} 
-        />
 
+{/* =================================================
+    DONOR AREA
+================================================= */}
 
-        <Route 
-          path="resend-verification" 
-          element={<ResendVerification />} 
-        />
 
+<Route 
+path="/donor"
+element={<DonorRoute />}
+>
 
-      </Route>
 
+<Route element={<DonorLayout />}>
 
 
+<Route 
+path="dashboard"
+element={<DonorDashboard />}
+/>
 
 
-      {/* =================================================
-          DONOR DASHBOARD
-      ================================================= */}
+<Route 
+path="profile"
+element={<DonorProfile />}
+/>
 
 
-      <Route 
-        path="/donor" 
-        element={<DonorRoute />}
-      >
+<Route 
+path="history"
+element={<DonationHistory />}
+/>
 
 
-        <Route element={<DonorLayout />}>
+<Route 
+path="donate"
+element={<DonateBlood />}
+/>
 
 
-          <Route 
-            path="dashboard" 
-            element={<DonorDashboard />} 
-          />
 
+{/* CHAT */}
 
-          <Route 
-            path="profile" 
-            element={<DonorProfile />} 
-          />
+<Route 
+path="chat"
+element={<DonorChatPage />}
+/>
 
 
-          <Route 
-            path="history" 
-            element={<DonationHistory />} 
-          />
 
+</Route>
 
-          <Route 
-            path="donate" 
-            element={<DonateBlood />} 
-          />
 
+</Route>
 
-          <Route 
-            path="chat" 
-            element={<DonorChatPage />} 
-          />
 
 
-        </Route>
 
 
-      </Route>
 
 
 
+{/* =================================================
+    PATIENT AREA
+================================================= */}
 
 
+<Route
 
+path="/patient"
 
-      {/* =================================================
-          PATIENT DASHBOARD
-      ================================================= */}
+element={<PatientRoute />}
 
+>
 
-      <Route 
-        path="/patient" 
-        element={<PatientRoute />}
-      >
 
+<Route element={<PatientLayout />}>
 
-        <Route element={<PatientLayout />}>
 
+<Route 
+path="dashboard"
+element={<PatientDashboard />}
+/>
 
-          <Route 
-            path="dashboard" 
-            element={<PatientDashboard />} 
-          />
 
+<Route 
+path="request"
+element={<CreateRequest />}
+/>
 
-          <Route 
-            path="request" 
-            element={<CreateRequest />} 
-          />
 
+<Route 
+path="requests"
+element={<MyRequests />}
+/>
 
-          <Route 
-            path="requests" 
-            element={<MyRequests />} 
-          />
 
+<Route 
+path="donors"
+element={<FindDonors />}
+/>
 
-          <Route 
-            path="donors" 
-            element={<FindDonors />} 
-          />
 
 
-          <Route 
-            path="chat" 
-            element={<PatientChatPage />} 
-          />
+{/* CHAT */}
 
+<Route 
+path="chat"
+element={<PatientChatPage />}
+/>
 
-        </Route>
 
 
-      </Route>
+</Route>
 
 
+</Route>
 
 
 
 
 
-      {/* =================================================
-          ADMIN DASHBOARD
-      ================================================= */}
 
 
-      <Route 
-        path="/admin" 
-        element={<AdminRoute />}
-      >
 
 
-        <Route element={<AdminLayout />}>
 
+{/* =================================================
+    ADMIN AREA
+================================================= */}
 
-          <Route 
-            path="dashboard" 
-            element={<AdminDashboard />} 
-          />
 
 
-          <Route 
-            path="users" 
-            element={<ManageUsers />} 
-          />
+<Route
 
+path="/admin"
 
-          <Route 
-            path="donors" 
-            element={<ManageDonors />} 
-          />
+element={<AdminRoute />}
 
+>
 
-          <Route 
-            path="requests" 
-            element={<BloodRequests />} 
-          />
 
 
-          <Route 
-            path="donations" 
-            element={<ManageDonations />} 
-          />
+<Route element={<AdminLayout />}>
 
 
-          <Route 
-            path="reports" 
-            element={<Reports />} 
-          />
+<Route 
+path="dashboard"
+element={<AdminDashboard />}
+/>
 
 
-          <Route 
-            path="chat" 
-            element={<AdminChatPage />} 
-          />
+<Route 
+path="users"
+element={<ManageUsers />}
+/>
 
 
-        </Route>
+<Route 
+path="donors"
+element={<ManageDonors />}
+/>
 
 
-      </Route>
+<Route 
+path="requests"
+element={<BloodRequests />}
+/>
 
 
+<Route 
+path="donations"
+element={<ManageDonations />}
+/>
 
 
-    </Routes>
+<Route 
+path="reports"
+element={<Reports />}
+/>
 
-  );
+
+
+{/* CHAT */}
+
+<Route 
+path="chat"
+element={<AdminChatPage />}
+/>
+
+
+
+</Route>
+
+
+</Route>
+
+
+
+
+
+
+{/* =================================================
+    404
+================================================= */}
+
+
+<Route
+
+path="*"
+
+element={
+
+<div className="min-h-screen flex items-center justify-center">
+
+<h1 className="text-4xl font-bold text-red-600">
+
+404 - Page Not Found
+
+</h1>
+
+</div>
+
+}
+
+/>
+
+
+
+</Routes>
+
+
+);
+
 
 }
 

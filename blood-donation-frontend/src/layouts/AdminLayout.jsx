@@ -1,22 +1,19 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
 function AdminLayout() {
-
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
     navigate("/login");
   };
 
   return (
-
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
 
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white p-6">
+      <aside className="fixed left-0 top-0 w-64 h-screen bg-gray-900 text-white p-6 overflow-y-auto">
 
         <h1 className="text-2xl font-bold mb-8">
           🩸 LifeLink Admin
@@ -66,7 +63,6 @@ function AdminLayout() {
             Reports
           </Link>
 
-          {/* ✅ NEW CHAT MENU */}
           <Link
             to="/admin/chat"
             className="block hover:bg-gray-700 p-2 rounded"
@@ -86,14 +82,12 @@ function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8">
+      <main className="ml-64 min-h-screen p-8 overflow-y-auto">
         <Outlet />
       </main>
 
     </div>
-
   );
-
 }
 
 export default AdminLayout;
