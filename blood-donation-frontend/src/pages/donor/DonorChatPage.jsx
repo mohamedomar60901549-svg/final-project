@@ -11,9 +11,7 @@ export default function DonorChatPage() {
         localStorage.getItem("user")
     );
 
-
     const token = localStorage.getItem("token");
-
 
 
     const [conversationId, setConversationId] = useState(null);
@@ -27,39 +25,50 @@ export default function DonorChatPage() {
     const [adminOnline, setAdminOnline] = useState(false);
 
 
-
     const messagesEndRef = useRef(null);
 
 
 
-
     // =====================================
-    // CREATE ADMIN CONVERSATION
+    // CREATE ADMIN CHAT
     // =====================================
 
-    useEffect(() => {
+    useEffect(()=>{
 
         createConversation();
 
-    }, []);
+        socket.emit(
+            "user_online",
+            {
+                user_id:user.id
+            }
+        );
+
+
+        socket.emit(
+            "get_online_users"
+        );
+
+
+    },[]);
 
 
 
-
-    const createConversation = async () => {
-
-        try {
+    const createConversation = async()=>{
 
 
-            const response = await fetch(
+        try{
+
+
+            const res = await fetch(
 
                 `${API}/api/chat/conversation/1`,
 
                 {
 
-                    method: "POST",
+                    method:"POST",
 
-                    headers: {
+                    headers:{
 
                         Authorization:
                         `Bearer ${token}`
@@ -71,7 +80,7 @@ export default function DonorChatPage() {
             );
 
 
-            const data = await response.json();
+            const data = await res.json();
 
 
             setConversationId(
@@ -80,13 +89,9 @@ export default function DonorChatPage() {
 
 
         }
+        catch(err){
 
-        catch(error){
-
-            console.error(
-                "Conversation error:",
-                error
-            );
+            console.log(err);
 
         }
 
@@ -97,12 +102,12 @@ export default function DonorChatPage() {
 
 
 
-
     // =====================================
-    // LOAD OLD MESSAGES
+    // LOAD MESSAGES
     // =====================================
 
-    useEffect(() => {
+
+    useEffect(()=>{
 
 
         if(!conversationId)
@@ -127,16 +132,13 @@ export default function DonorChatPage() {
 
         )
 
-
         .then(res=>res.json())
-
 
         .then(data=>{
 
             setMessages(data);
 
         });
-
 
 
 
@@ -152,7 +154,6 @@ export default function DonorChatPage() {
             }
 
         );
-
 
 
 
@@ -176,7 +177,6 @@ export default function DonorChatPage() {
         };
 
 
-
     },[conversationId]);
 
 
@@ -188,6 +188,7 @@ export default function DonorChatPage() {
     // =====================================
     // SOCKET EVENTS
     // =====================================
+
 
     useEffect(()=>{
 
@@ -204,13 +205,31 @@ export default function DonorChatPage() {
                 ){
 
 
-                    setMessages(prev=>[
+                    setMessages(prev=>{
 
-                        ...prev,
 
-                        data
+                        const exists =
+                        prev.find(
+                            m=>m.id===data.id
+                        );
 
-                    ]);
+
+                        if(exists)
+                            return prev;
+
+
+
+                        return [
+
+                            ...prev,
+
+                            data
+
+                        ];
+
+
+                    });
+
 
 
                 }
@@ -224,17 +243,14 @@ export default function DonorChatPage() {
 
 
 
-
         socket.on(
 
-            "user_connected",
+            "online_users",
 
-            (data)=>{
+            (users)=>{
 
 
-                // Admin ID = 1
-
-                if(data.user_id === 1){
+                if(users.includes(1)){
 
                     setAdminOnline(true);
 
@@ -249,6 +265,27 @@ export default function DonorChatPage() {
 
 
 
+        socket.on(
+
+            "user_connected",
+
+            (data)=>{
+
+
+                if(data.user_id===1){
+
+                    setAdminOnline(true);
+
+                }
+
+
+            }
+
+        );
+
+
+
+
 
         socket.on(
 
@@ -257,7 +294,7 @@ export default function DonorChatPage() {
             (data)=>{
 
 
-                if(data.user_id === 1){
+                if(data.user_id===1){
 
                     setAdminOnline(false);
 
@@ -272,8 +309,6 @@ export default function DonorChatPage() {
 
 
 
-
-
         socket.on(
 
             "user_typing",
@@ -281,13 +316,12 @@ export default function DonorChatPage() {
             (data)=>{
 
 
-                if(data.user_id !== user.id){
+                if(data.user_id!==user.id){
 
 
                     setTypingUser(
                         data.user_name
                     );
-
 
 
                     setTimeout(()=>{
@@ -307,14 +341,16 @@ export default function DonorChatPage() {
 
 
 
-
-
-
         return()=>{
 
 
             socket.off(
                 "receive_message"
+            );
+
+
+            socket.off(
+                "online_users"
             );
 
 
@@ -336,9 +372,31 @@ export default function DonorChatPage() {
         };
 
 
-
     },[conversationId]);
 
+
+
+
+
+
+
+
+    // =====================================
+    // AUTO SCROLL
+    // =====================================
+
+
+    useEffect(()=>{
+
+
+        messagesEndRef.current?.scrollIntoView({
+
+            behavior:"smooth"
+
+        });
+
+
+    },[messages]);
 
 
 
@@ -351,11 +409,55 @@ export default function DonorChatPage() {
     // SEND MESSAGE
     // =====================================
 
+
     const sendMessage = ()=>{
 
 
         if(!message.trim())
             return;
+
+
+
+        const tempMessage={
+
+
+            id:
+            Date.now(),
+
+
+            sender_id:
+            user.id,
+
+
+            receiver_id:
+            1,
+
+
+            message:
+            message,
+
+
+            created_at:
+            new Date().toISOString(),
+
+
+            sending:true
+
+
+        };
+
+
+
+        // show immediately
+
+        setMessages(prev=>[
+
+            ...prev,
+
+            tempMessage
+
+        ]);
+
 
 
 
@@ -388,7 +490,11 @@ export default function DonorChatPage() {
 
         setMessage("");
 
+
+
     };
+
+
 
 
 
@@ -414,11 +520,9 @@ export default function DonorChatPage() {
                 </h2>
 
 
-
-                <p className="text-sm">
+                <p>
 
                     {
-
                         adminOnline
 
                         ?
@@ -442,37 +546,38 @@ export default function DonorChatPage() {
 
 
 
-            {/* MESSAGE AREA */}
+            {/* MESSAGES */}
+
 
             <div className="flex-1 overflow-y-auto p-5 space-y-3">
 
 
-
                 {
 
-                    messages.map((msg)=>(
+                    messages.map(msg=>(
 
 
                         <div
 
-                            key={msg.id}
+                        key={msg.id}
 
-                            className={
+                        className={
 
-                                `flex ${
-                                    msg.sender_id === user.id
+                        `flex ${
+                            msg.sender_id===user.id
 
-                                    ?
+                            ?
 
-                                    "justify-end"
+                            "justify-end"
 
-                                    :
+                            :
 
-                                    "justify-start"
+                            "justify-start"
 
-                                }`
+                        }`
 
-                            }
+                        }
+
 
                         >
 
@@ -480,32 +585,60 @@ export default function DonorChatPage() {
 
                             <div
 
-                                className={
+                            className={
 
-                                    `max-w-md px-4 py-3 rounded-2xl
+                            `max-w-md px-4 py-3 rounded-2xl shadow
 
-                                    ${
-                                        msg.sender_id === user.id
+                            ${
+                                msg.sender_id===user.id
 
-                                        ?
+                                ?
 
-                                        "bg-red-600 text-white"
+                                "bg-red-600 text-white"
 
-                                        :
+                                :
 
-                                        "bg-white shadow"
+                                "bg-white"
 
-                                    }`
+                            }`
 
-                                }
+                            }
+
 
                             >
 
-                                {msg.message}
+
+                                <p>
+
+                                    {msg.message}
+
+                                </p>
+
+
+
+                                <div className="text-xs opacity-70 mt-1">
+
+
+                                    {
+
+                                    new Date(
+                                        msg.created_at
+                                    )
+                                    .toLocaleTimeString(
+                                        [],
+                                        {
+                                            hour:"2-digit",
+                                            minute:"2-digit"
+                                        }
+                                    )
+
+                                    }
+
+
+                                </div>
 
 
                             </div>
-
 
 
                         </div>
@@ -528,18 +661,15 @@ export default function DonorChatPage() {
 
 
 
-
             {
 
                 typingUser &&
-
 
                 <div className="px-5 text-gray-500">
 
                     {typingUser} typing...
 
                 </div>
-
 
             }
 
@@ -550,8 +680,8 @@ export default function DonorChatPage() {
 
 
 
-
             {/* INPUT */}
+
 
             <div className="p-4 bg-white flex gap-3">
 
@@ -559,71 +689,66 @@ export default function DonorChatPage() {
                 <input
 
 
-                    value={message}
+                value={message}
 
 
-
-                    onChange={(e)=>{
-
-
-                        setMessage(
-                            e.target.value
-                        );
+                onChange={(e)=>{
 
 
-
-                        socket.emit(
-
-                            "typing",
-
-                            {
-
-                                conversation_id:
-                                conversationId,
+                    setMessage(
+                        e.target.value
+                    );
 
 
-                                user_id:
-                                user.id,
+                    socket.emit(
+
+                        "typing",
+
+                        {
+
+                        conversation_id:
+                        conversationId,
 
 
-                                user_name:
-                                user.full_name
-
-                            }
-
-                        );
+                        user_id:
+                        user.id,
 
 
-                    }}
-
-
-
-                    onKeyDown={(e)=>{
-
-
-                        if(e.key==="Enter"){
-
-                            sendMessage();
+                        user_name:
+                        user.full_name
 
                         }
 
-
-                    }}
-
+                    );
 
 
-                    placeholder="Message admin..."
+                }}
 
 
+                onKeyDown={(e)=>{
 
-                    className="
-                    flex-1
-                    border
-                    rounded-full
-                    px-5
-                    py-3
-                    focus:outline-none
-                    "
+
+                    if(e.key==="Enter"){
+
+                        sendMessage();
+
+                    }
+
+
+                }}
+
+
+                placeholder="Message admin..."
+
+
+                className="
+                flex-1
+                border
+                rounded-full
+                px-5
+                py-3
+                outline-none
+                "
 
 
                 />
@@ -632,22 +757,17 @@ export default function DonorChatPage() {
 
 
 
-
                 <button
 
-
-                    onClick={sendMessage}
-
+                onClick={sendMessage}
 
 
-                    className="
-                    bg-red-600
-                    hover:bg-red-700
-                    text-white
-                    px-6
-                    rounded-full
-                    "
-
+                className="
+                bg-red-600
+                text-white
+                px-6
+                rounded-full
+                "
 
                 >
 
@@ -658,8 +778,6 @@ export default function DonorChatPage() {
 
 
             </div>
-
-
 
 
 
