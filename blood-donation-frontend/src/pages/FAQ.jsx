@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(0);
@@ -90,9 +91,9 @@ export default function FAQ() {
             backgroundImage:
               "url('https://images.unsplash.com/photo-1615461066847-6116e61058f4?auto=format&fit=crop&w=1600&q=80')",
           }}
-        ></div>
+        />
 
-        <div className="absolute inset-0 bg-slate-900/75"></div>
+        <div className="absolute inset-0 bg-slate-900/75" />
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white">
 
@@ -126,7 +127,7 @@ export default function FAQ() {
 
               <div
                 key={item.title}
-                className="bg-gray-50 rounded-2xl p-6 shadow-sm border hover:shadow-lg transition"
+                className="bg-gray-50 rounded-2xl p-6 shadow-sm border hover:shadow-lg transition duration-300"
               >
 
                 <div className="text-4xl mb-4">
@@ -174,7 +175,7 @@ export default function FAQ() {
 
           </div>
 
-                      <div className="space-y-5">
+          <div className="space-y-5">
 
             {faqs.map((faq, index) => (
 
@@ -184,6 +185,7 @@ export default function FAQ() {
               >
 
                 <button
+                  type="button"
                   onClick={() =>
                     setOpenIndex(openIndex === index ? -1 : index)
                   }
@@ -234,7 +236,7 @@ export default function FAQ() {
 
       </section>
 
-      {/* ================= QUICK FACTS ================= */}
+            {/* ================= QUICK FACTS ================= */}
 
       <section className="py-24 bg-slate-100">
 
@@ -261,7 +263,7 @@ export default function FAQ() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
 
-            <div className="bg-white rounded-2xl shadow-md p-8 text-center">
+            <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition">
 
               <div className="text-5xl mb-4">
                 👥
@@ -277,7 +279,7 @@ export default function FAQ() {
 
             </div>
 
-            <div className="bg-white rounded-2xl shadow-md p-8 text-center">
+            <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition">
 
               <div className="text-5xl mb-4">
                 🩸
@@ -293,7 +295,7 @@ export default function FAQ() {
 
             </div>
 
-            <div className="bg-white rounded-2xl shadow-md p-8 text-center">
+            <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition">
 
               <div className="text-5xl mb-4">
                 🏥
@@ -309,7 +311,7 @@ export default function FAQ() {
 
             </div>
 
-            <div className="bg-white rounded-2xl shadow-md p-8 text-center">
+            <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition">
 
               <div className="text-5xl mb-4">
                 🚑
@@ -331,7 +333,7 @@ export default function FAQ() {
 
       </section>
 
-            {/* ================= NEED MORE HELP ================= */}
+      {/* ================= NEED MORE HELP ================= */}
 
       <section className="py-24 bg-white">
 
@@ -352,9 +354,8 @@ export default function FAQ() {
               <p className="mt-6 text-lg text-gray-600 leading-8">
                 If you cannot find the answer you're looking for,
                 don't worry. Our LifeLink support team is available
-                to assist donors, patients, hospitals, and healthcare
-                professionals with registration, emergency blood
-                requests, account issues, and technical support.
+                to assist donors, patients, hospitals, healthcare
+                professionals, and system administrators.
               </p>
 
               <div className="mt-10 space-y-6">
@@ -435,9 +436,9 @@ export default function FAQ() {
 
               <p className="mt-6 text-gray-300 leading-8">
                 A single blood donation can help save multiple lives.
-                By becoming a donor through LifeLink, you join a
-                growing community committed to making emergency
-                healthcare faster, safer, and more accessible.
+                By becoming a donor through LifeLink, you become part
+                of a growing community dedicated to saving lives every
+                single day.
               </p>
 
               <div className="mt-10 space-y-4">
@@ -472,31 +473,63 @@ export default function FAQ() {
 
       </section>
 
-      {/* ================= CTA ================= */}
+            {/* ================= CTA ================= */}
 
       <section className="bg-gradient-to-r from-slate-900 via-slate-800 to-red-700 text-white py-24">
 
         <div className="max-w-5xl mx-auto px-6 text-center">
 
-          <h2 className="text-5xl font-bold">
+          <span className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full font-semibold mb-6">
+            Join the LifeLink Community
+          </span>
+
+          <h2 className="text-5xl font-bold leading-tight">
             Together We Can Save More Lives
           </h2>
 
-          <p className="mt-6 text-xl text-gray-200 leading-8">
+          <p className="mt-6 text-xl text-gray-200 leading-8 max-w-3xl mx-auto">
             Join LifeLink today and become part of a trusted community
             connecting blood donors, patients, hospitals, and healthcare
             professionals across Kenya.
           </p>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-5">
+          <div className="mt-10 flex flex-wrap justify-center gap-6">
 
-            <button className="bg-white text-red-700 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition">
+            <Link
+              to="/register"
+              className="inline-flex items-center justify-center
+                         bg-white
+                         text-red-700
+                         px-8
+                         py-4
+                         rounded-xl
+                         font-bold
+                         shadow-lg
+                         hover:bg-gray-100
+                         hover:shadow-2xl
+                         transition-all
+                         duration-300"
+            >
               Become a Donor
-            </button>
+            </Link>
 
-            <button className="border-2 border-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-slate-900 transition">
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center
+                         border-2
+                         border-white
+                         text-white
+                         px-8
+                         py-4
+                         rounded-xl
+                         font-bold
+                         hover:bg-white
+                         hover:text-slate-900
+                         transition-all
+                         duration-300"
+            >
               Contact Support
-            </button>
+            </Link>
 
           </div>
 
