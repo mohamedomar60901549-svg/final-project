@@ -31,9 +31,6 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.clear();
-    console.log("========== REGISTER ==========");
-
     setMessage("");
     setSuccess(false);
 
@@ -46,25 +43,21 @@ function Register() {
       !formData.confirmPassword ||
       !formData.role
     ) {
-      console.log("Missing fields");
       setMessage("Please fill in all required fields.");
       return;
     }
 
     if (!validateEmail(formData.email)) {
-      console.log("Invalid email");
       setMessage("Please enter a valid email address.");
       return;
     }
 
     if (formData.password.length < 8) {
-      console.log("Password too short");
       setMessage("Password must be at least 8 characters.");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      console.log("Passwords do not match");
       setMessage("Passwords do not match.");
       return;
     }
@@ -72,8 +65,6 @@ function Register() {
     setLoading(true);
 
     try {
-      console.log("Sending request...");
-
       const response = await fetch(
         "http://127.0.0.1:5000/api/auth/register",
         {
@@ -93,11 +84,7 @@ function Register() {
         }
       );
 
-      console.log("Status:", response.status);
-
       const data = await response.json();
-
-      console.log("Response:", data);
 
       if (response.ok) {
         setSuccess(true);
@@ -117,11 +104,11 @@ function Register() {
         setMessage(data.message || "Registration failed.");
       }
     } catch (error) {
-      console.error("Fetch Error:", error);
+      console.error(error);
       setMessage("Cannot connect to backend.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -144,7 +131,26 @@ function Register() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          autoComplete="off"
+        >
+          {/* Hidden fields to reduce browser autofill */}
+          <input
+            type="text"
+            name="fakeUsername"
+            autoComplete="username"
+            className="hidden"
+            tabIndex={-1}
+          />
+
+          <input
+            type="password"
+            name="fakePassword"
+            autoComplete="current-password"
+            className="hidden"
+            tabIndex={-1}
+          />
 
           <input
             type="text"
@@ -152,6 +158,8 @@ function Register() {
             placeholder="Full Name"
             value={formData.full_name}
             onChange={handleChange}
+            autoComplete="off"
+            spellCheck={false}
             className="w-full border rounded-lg p-3 mb-4"
             required
           />
@@ -162,16 +170,19 @@ function Register() {
             placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
+            autoComplete="off"
+            spellCheck={false}
             className="w-full border rounded-lg p-3 mb-4"
             required
           />
 
           <input
-            type="text"
+            type="tel"
             name="phone"
             placeholder="Phone Number"
             value={formData.phone}
             onChange={handleChange}
+            autoComplete="off"
             className="w-full border rounded-lg p-3 mb-4"
             required
           />
@@ -200,6 +211,7 @@ function Register() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            autoComplete="new-password"
             className="w-full border rounded-lg p-3 mb-4"
             required
           />
@@ -210,6 +222,7 @@ function Register() {
             placeholder="Confirm Password"
             value={formData.confirmPassword}
             onChange={handleChange}
+            autoComplete="new-password"
             className="w-full border rounded-lg p-3 mb-4"
             required
           />
@@ -229,7 +242,7 @@ function Register() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold p-3 rounded-lg"
+            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold p-3 rounded-lg transition"
           >
             {loading ? "Creating Account..." : "Register"}
           </button>

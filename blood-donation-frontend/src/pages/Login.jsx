@@ -10,18 +10,15 @@ function Login() {
   });
 
   const [message, setMessage] = useState("");
-
   const [success, setSuccess] = useState(false);
-
   const [loading, setLoading] = useState(false);
-
   const [showVerificationLink, setShowVerificationLink] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -47,54 +44,50 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem(
-          "token",
-          data.token
-        );
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(data.user)
-        );
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
         setSuccess(true);
-        setMessage("Login successful.");
+        setMessage("Login successful. Redirecting...");
 
         setTimeout(() => {
-          if (data.user.role === "donor") {
-            navigate("/donor/dashboard");
-          } else if (data.user.role === "patient") {
-            navigate("/patient/dashboard");
-          } else if (data.user.role === "admin") {
-            navigate("/admin/dashboard");
+          switch (data.user.role) {
+            case "admin":
+              navigate("/admin/dashboard");
+              break;
+
+            case "donor":
+              navigate("/donor/dashboard");
+              break;
+
+            case "patient":
+              navigate("/patient/dashboard");
+              break;
+
+            default:
+              navigate("/");
           }
         }, 1000);
-
       } else {
-
         setMessage(data.message || "Invalid login details.");
 
         if (
           data.message &&
-          data.message.includes("verify")
+          data.message.toLowerCase().includes("verify")
         ) {
           setShowVerificationLink(true);
         }
-
       }
-
     } catch (error) {
-
+      console.error(error);
       setMessage("Backend server is not running.");
-
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-6">
-
       <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
 
         <h1 className="text-3xl font-bold text-center mb-6 text-red-600">
@@ -113,7 +106,26 @@ function Login() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          autoComplete="off"
+        >
+          {/* Hidden fields help prevent browser autofill */}
+          <input
+            type="text"
+            name="fakeUsername"
+            autoComplete="username"
+            className="hidden"
+            tabIndex="-1"
+          />
+
+          <input
+            type="password"
+            name="fakePassword"
+            autoComplete="current-password"
+            className="hidden"
+            tabIndex="-1"
+          />
 
           <input
             type="email"
@@ -121,6 +133,8 @@ function Login() {
             placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
+            autoComplete="off"
+            spellCheck={false}
             className="w-full border p-3 mb-4 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
             required
           />
@@ -131,6 +145,7 @@ function Login() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            autoComplete="new-password"
             className="w-full border p-3 rounded focus:outline-none focus:ring-2 focus:ring-red-500"
             required
           />
@@ -166,7 +181,6 @@ function Login() {
         </form>
 
         <p className="text-center mt-6 text-gray-600">
-
           Don't have an account?
 
           <Link
@@ -175,11 +189,9 @@ function Login() {
           >
             Register
           </Link>
-
         </p>
 
       </div>
-
     </div>
   );
 }

@@ -189,9 +189,9 @@ ${form.message}`;
                   </a>
 
                   <p className="mt-2 text-gray-500 text-sm">
-                    Available Monday - Friday
+                    Available Monday - saturday, 7:00 AM - 5:00 PM (EAT). Call or send a WhatsApp message for urgent inquiries.
                     <br />
-                    8:00 AM - 5:00 PM (EAT)
+                    7:00 AM - 5:00 PM (EAT)
                   </p>
 
                 </div>
