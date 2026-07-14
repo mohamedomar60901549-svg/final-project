@@ -1,4 +1,62 @@
+import { useState } from "react";
+
 export default function Contact() {
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const [sendMethod, setSendMethod] = useState("email");
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (
+      !form.name.trim() ||
+      !form.email.trim() ||
+      !form.subject.trim() ||
+      !form.message.trim()
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const body = `Name: ${form.name}
+
+Email: ${form.email}
+
+Subject: ${form.subject}
+
+Message:
+${form.message}`;
+
+    if (sendMethod === "email") {
+      window.location.href =
+        `mailto:lifelink.bloodsystem@gmail.com?subject=${encodeURIComponent(
+          form.subject
+        )}&body=${encodeURIComponent(body)}`;
+    } else {
+      window.location.href =
+        `sms:+254729667133?body=${encodeURIComponent(body)}`;
+    }
+  };
+
+  const formComplete =
+    form.name &&
+    form.email &&
+    form.subject &&
+    form.message;
+
   return (
     <div className="bg-gray-50">
 
@@ -63,8 +121,6 @@ export default function Contact() {
 
             <div className="mt-10 space-y-6">
 
-              {/* LOCATION */}
-
               <div className="bg-white rounded-2xl shadow-lg p-6 flex items-start gap-5">
 
                 <div className="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-3xl">
@@ -84,8 +140,6 @@ export default function Contact() {
                 </div>
 
               </div>
-
-              {/* EMAIL */}
 
               <div className="bg-white rounded-2xl shadow-lg p-6 flex items-start gap-5">
 
@@ -115,8 +169,6 @@ export default function Contact() {
 
               </div>
 
-              {/* PHONE */}
-
               <div className="bg-white rounded-2xl shadow-lg p-6 flex items-start gap-5">
 
                 <div className="w-16 h-16 rounded-xl bg-red-100 flex items-center justify-center text-3xl">
@@ -137,7 +189,8 @@ export default function Contact() {
                   </a>
 
                   <p className="mt-2 text-gray-500 text-sm">
-                    Available Monday - Friday<br />
+                    Available Monday - Friday
+                    <br />
                     8:00 AM - 5:00 PM (EAT)
                   </p>
 
@@ -158,13 +211,16 @@ export default function Contact() {
             </h2>
 
             <p className="mt-4 text-gray-600">
-              Complete the form below and our team will get back to you as
-              soon as possible.
+              Complete the form below and choose whether to send it through
+              Email or SMS.
             </p>
 
-            <form className="mt-8 space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              className="mt-8 space-y-6"
+            >
 
-              <div>
+                            <div>
 
                 <label className="block text-gray-700 font-medium mb-2">
                   Full Name
@@ -172,6 +228,10 @@ export default function Contact() {
 
                 <input
                   type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
                   placeholder="Enter your full name"
                   className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
                 />
@@ -186,6 +246,10 @@ export default function Contact() {
 
                 <input
                   type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
                   placeholder="Enter your email"
                   className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
                 />
@@ -200,6 +264,10 @@ export default function Contact() {
 
                 <input
                   type="text"
+                  name="subject"
+                  value={form.subject}
+                  onChange={handleChange}
+                  required
                   placeholder="Message subject"
                   className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
                 />
@@ -214,17 +282,51 @@ export default function Contact() {
 
                 <textarea
                   rows="6"
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
+                  required
                   placeholder="Write your message..."
                   className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
                 ></textarea>
 
               </div>
 
+              <div>
+
+                <label className="block text-gray-700 font-medium mb-2">
+                  Send Via
+                </label>
+
+                <select
+                  value={sendMethod}
+                  onChange={(e) => setSendMethod(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                >
+                  <option value="email">
+                    📧 Email
+                  </option>
+
+                  <option value="sms">
+                    💬 SMS
+                  </option>
+
+                </select>
+
+              </div>
+
               <button
                 type="submit"
-                className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-4 rounded-xl transition"
+                disabled={!formComplete}
+                className={`w-full py-4 rounded-xl font-semibold transition ${
+                  formComplete
+                    ? "bg-blue-700 hover:bg-blue-800 text-white"
+                    : "bg-gray-400 text-white cursor-not-allowed"
+                }`}
               >
-                Send Message
+                {sendMethod === "email"
+                  ? "📧 Send via Email"
+                  : "💬 Send via SMS"}
               </button>
 
             </form>
@@ -275,4 +377,5 @@ export default function Contact() {
 
     </div>
   );
+
 }
