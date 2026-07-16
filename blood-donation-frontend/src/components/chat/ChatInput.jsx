@@ -1,36 +1,54 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function ChatInput({
 
     value,
 
-    setValue,
+    onChange,
 
     onSend,
 
-    onTyping
+    onTyping,
+
+    disabled = false
 
 }) {
 
     const inputRef = useRef(null);
 
-    const send = () => {
+    // =====================================
+    // ALWAYS KEEP INPUT FOCUSED
+    // =====================================
 
-        if (!value.trim()) return;
+    useEffect(() => {
 
-        onSend();
+        inputRef.current?.focus();
 
-        setTimeout(() => {
+    });
 
-            inputRef.current?.focus();
+    // =====================================
+    // ENTER TO SEND
+    // =====================================
 
-        }, 0);
+    const handleKeyDown = (e) => {
+
+        if (e.key === "Enter" && !e.shiftKey) {
+
+            e.preventDefault();
+
+            onSend();
+
+        }
 
     };
 
+    // =====================================
+    // CHANGE
+    // =====================================
+
     const handleChange = (e) => {
 
-        setValue(e.target.value);
+        onChange(e.target.value);
 
         if (onTyping) {
 
@@ -40,53 +58,66 @@ export default function ChatInput({
 
     };
 
-    const handleKeyDown = (e) => {
-
-        if (e.key === "Enter" && !e.shiftKey) {
-
-            e.preventDefault();
-
-            send();
-
-        }
-
-    };
-
     return (
 
-        <div className="bg-white border-t p-4 flex gap-3">
+        <div className="bg-white border-t p-4">
 
-            <input
+            <div className="flex items-center gap-3">
 
-                ref={inputRef}
+                <input
 
-                autoFocus
+                    ref={inputRef}
 
-                type="text"
+                    type="text"
 
-                value={value}
+                    value={value}
 
-                onChange={handleChange}
+                    disabled={disabled}
 
-                onKeyDown={handleKeyDown}
+                    onChange={handleChange}
 
-                placeholder="Type a message..."
+                    onKeyDown={handleKeyDown}
 
-                className="flex-1 border rounded-full px-5 py-3 outline-none focus:ring-2 focus:ring-red-500"
+                    placeholder="Type a message..."
 
-            />
+                    className="
+                        flex-1
+                        border
+                        rounded-full
+                        px-5
+                        py-3
+                        outline-none
+                        focus:ring-2
+                        focus:ring-red-500
+                    "
 
-            <button
+                />
 
-                onClick={send}
+                <button
 
-                className="bg-red-600 hover:bg-red-700 text-white px-6 rounded-full font-semibold"
+                    onClick={onSend}
 
-            >
+                    disabled={disabled || value.trim() === ""}
 
-                Send
+                    className="
+                        px-6
+                        py-3
+                        rounded-full
+                        bg-red-600
+                        hover:bg-red-700
+                        disabled:bg-gray-400
+                        text-white
+                        font-semibold
+                        transition
+                    "
 
-            </button>
+                >
+
+                    Send
+
+                </button>
+
+            </div>
 
         </div>
 
