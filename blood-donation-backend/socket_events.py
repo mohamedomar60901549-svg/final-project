@@ -1,241 +1,148 @@
-from flask import request
-from flask_socketio import emit, join_room, leave_room
+from flask_socketio import (
+    emit,
+    join_room,
+    leave_room
+)
+
+from datetime import datetime
 
 from extensions import db
+
 from models.message import Message
 from models.conversation import Conversation
 
-online_users = {}
 
+# ==========================================================
+# ONLINE USERS
+# ==========================================================
+
+online_users = set()
+
+
+
+# ==========================================================
+# REGISTER SOCKET EVENTS
+# ==========================================================
 
 def register_socket_events(socketio):
 
-    # =====================================
-    # CONNECT
-    # =====================================
+
+    # ======================================================
+    # CLIENT CONNECT
+    # ======================================================
 
     @socketio.on("connect")
-    def connect():
-        print(f"✅ Socket Connected: {request.sid}")
+    def handle_connect():
 
-    # =====================================
-    # DISCONNECT
-    # =====================================
+        print("\n==============================")
+        print("✅ Client Connected")
+        print("==============================\n")
+
+
+
+    # ======================================================
+    # CLIENT DISCONNECT
+    # ======================================================
 
     @socketio.on("disconnect")
-    def disconnect():
+    def handle_disconnect():
 
-        disconnected_user = None
+        print("\n==============================")
+        print("❌ Client Disconnected")
+        print("==============================\n")
 
-        for user_id, sid in list(online_users.items()):
 
-            if sid == request.sid:
-                disconnected_user = user_id
-                del online_users[user_id]
-                break
 
-        if disconnected_user:
-
-            emit(
-                "user_disconnected",
-                {
-                    "user_id": disconnected_user
-                },
-                broadcast=True
-            )
-
-        print(f"❌ Socket Disconnected: {request.sid}")
-
-    # =====================================
+    # ======================================================
     # USER ONLINE
-    # =====================================
+    # ======================================================
 
     @socketio.on("user_online")
     def user_online(data):
 
-        user_id = data["user_id"]
+        user_id = data.get("user_id")
 
-        online_users[user_id] = request.sid
+        if user_id:
 
-        emit(
-            "online_users",
-            list(online_users.keys())
-        )
+            online_users.add(user_id)
 
-        emit(
-            "user_connected",
-            {
-                "user_id": user_id
-            },
-            broadcast=True
-        )
-
-    # =====================================
-    # GET ONLINE USERS
-    # =====================================
-
-    @socketio.on("get_online_users")
-    def get_online_users():
-
-        emit(
-            "online_users",
-            list(online_users.keys())
-        )
-
-    # =====================================
-    # JOIN ROOM
-    # =====================================
-
-    @socketio.on("join_room")
-    def join_chat(data):
-
-        room = f"chat_{data['conversation_id']}"
-
-        join_room(room)
-
-        print(f"Joined {room}")
-
-    # =====================================
-    # LEAVE ROOM
-    # =====================================
-
-    @socketio.on("leave_room")
-    def leave_chat(data):
-
-        room = f"chat_{data['conversation_id']}"
-
-        leave_room(room)
-
-        print(f"Left {room}")
-
-    # =====================================
-    # SEND MESSAGE
-    # =====================================
-
-    @socketio.on("send_message")
-    def send_message(data):
-
-        message = Message(
-
-            conversation_id=data["conversation_id"],
-
-            sender_id=data["sender_id"],
-
-            receiver_id=data["receiver_id"],
-
-            message=data["message"],
-
-            is_read=False
-
-        )
-
-        db.session.add(message)
-
-        conversation = Conversation.query.get(
-            data["conversation_id"]
-        )
-
-        if conversation:
-            conversation.updated_at = message.created_at
-
-        db.session.commit()
-
-        room = f"chat_{message.conversation_id}"
-
-        message_data = {
-
-            "id": message.id,
-
-            "conversation_id": message.conversation_id,
-
-            "sender_id": message.sender_id,
-
-            "receiver_id": message.receiver_id,
-
-            "message": message.message,
-
-            "created_at": message.created_at.isoformat(),
-
-            "is_read": message.is_read,
-
-            "delivered": True
-
-        }
-
-        emit(
-            "receive_message",
-            message_data,
-            room=room
-        )
-
-        if message.receiver_id in online_users:
-
-            emit(
-
-                "new_notification",
-
-                {
-
-                    "sender_id": message.sender_id,
-
-                    "conversation_id": message.conversation_id,
-
-                    "message": message.message
-
-                },
-
-                room=online_users[message.receiver_id]
-
+            print(
+                f"🟢 User online: {user_id}"
             )
 
-    # =====================================
-    # USER TYPING
-    # =====================================
 
-    @socketio.on("typing")
-    def typing(data):
+            emit(
+                "user_status",
+                {
+                    "user_id": user_id,
+                    "status": "online"
+                },
+                broadcast=True
+            )
 
-        room = f"chat_{data['conversation_id']}"
 
-        emit(
-            "user_typing",
-            data,
-            room=room,
-            include_self=False
+
+    # ======================================================
+    # USER OFFLINE
+    # ======================================================
+
+    @socketio.on("user_offline")
+    def user_offline(data):
+
+        user_id = data.get("user_id")
+
+        if user_id in online_users:
+
+            online_users.remove(user_id)
+
+
+            print(
+                f"🔴 User offline: {user_id}"
+            )
+
+
+            emit(
+                "user_status",
+                {
+                    "user_id": user_id,
+                    "status": "offline"
+                },
+                broadcast=True
+            )
+
+
+
+    # ======================================================
+    # JOIN CONVERSATION ROOM
+    # ======================================================
+
+    @socketio.on("join_chat")
+    def join_chat(data):
+
+        conversation_id = data.get(
+            "conversation_id"
         )
 
-    # =====================================
-    # MESSAGE DELIVERED
-    # =====================================
 
-    @socketio.on("message_delivered")
-    def message_delivered(data):
+        if conversation_id:
 
-        emit(
-            "message_delivered",
-            data,
-            broadcast=True,
-            include_self=False
-        )
+            room = (
+                f"conversation_{conversation_id}"
+            )
 
-    # =====================================
-    # MESSAGE READ
-    # =====================================
 
-    @socketio.on("message_read")
-    def message_read(data):
+            join_room(room)
 
-        message = Message.query.get(data["message_id"])
 
-        if message:
+            print(
+                f"👥 Joined room: {room}"
+            )
 
-            message.is_read = True
 
-            db.session.commit()
-
-        emit(
-            "message_read",
-            data,
-            broadcast=True,
-            include_self=False
-        )
+            emit(
+                "joined_chat",
+                {
+                    "conversation_id":
+                    conversation_id
+                }
+            )
