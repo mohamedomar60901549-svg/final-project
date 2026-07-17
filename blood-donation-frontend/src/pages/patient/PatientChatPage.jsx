@@ -3,7 +3,9 @@ import socket from "../../socket";
 
 const API = "http://127.0.0.1:5000";
 
+
 export default function PatientChatPage() {
+
 
     const user = JSON.parse(
         localStorage.getItem("user")
@@ -27,15 +29,32 @@ export default function PatientChatPage() {
 
 
 
+
     // ==========================
     // CREATE ADMIN CHAT
     // ==========================
 
     useEffect(() => {
 
+
         createConversation();
 
+
+        socket.emit(
+            "user_online",
+            {
+                user_id:user.id
+            }
+        );
+
+
+        socket.emit(
+            "get_online_users"
+        );
+
+
     }, []);
+
 
 
 
@@ -43,20 +62,29 @@ export default function PatientChatPage() {
 
         try {
 
-            const response = await fetch(
-                `${API}/api/chat/conversation/1`,
-                {
-                    method: "POST",
 
-                    headers: {
+            const response = await fetch(
+
+                `${API}/api/chat/conversation/1`,
+
+                {
+
+                    method:"POST",
+
+                    headers:{
+
                         Authorization:
                         `Bearer ${token}`
+
                     }
+
                 }
+
             );
 
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
 
             setConversationId(
@@ -76,11 +104,14 @@ export default function PatientChatPage() {
 
 
 
+
+
     // ==========================
     // LOAD MESSAGES
     // ==========================
 
     useEffect(() => {
+
 
         if(!conversationId)
             return;
@@ -88,13 +119,20 @@ export default function PatientChatPage() {
 
 
         fetch(
+
             `${API}/api/chat/messages/${conversationId}`,
+
             {
+
                 headers:{
+
                     Authorization:
                     `Bearer ${token}`
+
                 }
+
             }
+
         )
 
         .then(res=>res.json())
@@ -107,30 +145,45 @@ export default function PatientChatPage() {
 
 
 
+
         socket.emit(
+
             "join_room",
+
             {
+
                 conversation_id:
                 conversationId
+
             }
+
         );
+
 
 
 
         return()=>{
 
+
             socket.emit(
+
                 "leave_room",
+
                 {
+
                     conversation_id:
                     conversationId
+
                 }
+
             );
+
 
         };
 
 
     },[conversationId]);
+
 
 
 
@@ -144,82 +197,122 @@ export default function PatientChatPage() {
     useEffect(()=>{
 
 
-        socket.on(
-            "receive_message",
-            (data)=>{
+        const receiveMessage = (data)=>{
 
 
-                if(
-                    data.conversation_id === conversationId
-                ){
+            if(
+                data.conversation_id === conversationId
+            ){
 
-                    setMessages(prev=>[
+
+                setMessages(prev=>{
+
+
+                    const exists =
+                    prev.some(
+                        msg=>msg.id === data.id
+                    );
+
+
+                    if(exists)
+                        return prev;
+
+
+                    return [
                         ...prev,
                         data
-                    ]);
+                    ];
 
-                }
+
+                });
+
 
             }
-        );
 
+
+        };
+
+
+
+
+        const userConnected = (data)=>{
+
+
+            if(data.user_id === 1){
+
+                setAdminOnline(true);
+
+            }
+
+        };
+
+
+
+
+        const userDisconnected = (data)=>{
+
+
+            if(data.user_id === 1){
+
+                setAdminOnline(false);
+
+            }
+
+        };
+
+
+
+
+
+        const typing = (data)=>{
+
+
+            if(data.user_id !== user.id){
+
+
+                setTypingUser(
+                    data.user_name
+                );
+
+
+                setTimeout(()=>{
+
+                    setTypingUser(null);
+
+                },2000);
+
+
+            }
+
+        };
+
+
+
+
+
+        socket.on(
+            "receive_message",
+            receiveMessage
+        );
 
 
         socket.on(
             "user_connected",
-            (data)=>{
-
-                if(data.user_id === 1){
-
-                    setAdminOnline(true);
-
-                }
-
-            }
+            userConnected
         );
-
 
 
         socket.on(
             "user_disconnected",
-            (data)=>{
-
-
-                if(data.user_id === 1){
-
-                    setAdminOnline(false);
-
-                }
-
-            }
+            userDisconnected
         );
-
 
 
         socket.on(
             "user_typing",
-            (data)=>{
-
-
-                if(data.user_id !== user.id){
-
-
-                    setTypingUser(
-                        data.user_name
-                    );
-
-
-                    setTimeout(()=>{
-
-                        setTypingUser(null);
-
-                    },2000);
-
-
-                }
-
-            }
+            typing
         );
+
 
 
 
@@ -227,19 +320,57 @@ export default function PatientChatPage() {
         return()=>{
 
 
-            socket.off("receive_message");
+            socket.off(
+                "receive_message",
+                receiveMessage
+            );
 
-            socket.off("user_connected");
 
-            socket.off("user_disconnected");
+            socket.off(
+                "user_connected",
+                userConnected
+            );
 
-            socket.off("user_typing");
+
+            socket.off(
+                "user_disconnected",
+                userDisconnected
+            );
+
+
+            socket.off(
+                "user_typing",
+                typing
+            );
 
 
         };
 
 
     },[conversationId]);
+
+
+
+
+
+
+
+    // ==========================
+    // AUTO SCROLL
+    // ==========================
+
+    useEffect(()=>{
+
+
+        messagesEndRef.current?.scrollIntoView({
+
+            behavior:"smooth"
+
+        });
+
+
+    },[messages]);
+
 
 
 
@@ -259,7 +390,9 @@ export default function PatientChatPage() {
 
 
         socket.emit(
+
             "send_message",
+
             {
 
                 conversation_id:
@@ -274,9 +407,11 @@ export default function PatientChatPage() {
                 1,
 
 
-                message
+                message:
+                message.trim()
 
             }
+
         );
 
 
@@ -289,14 +424,72 @@ export default function PatientChatPage() {
 
 
 
+
+    // ==========================
+    // TIME FORMAT
+    // ==========================
+
+    const formatTime = (time)=>{
+
+
+        if(!time)
+            return "";
+
+
+
+        let timestamp = time;
+
+
+
+        if(
+            typeof timestamp === "string" &&
+            !timestamp.endsWith("Z") &&
+            !timestamp.includes("+")
+        ){
+
+            timestamp += "Z";
+
+        }
+
+
+
+        return new Date(timestamp)
+
+            .toLocaleTimeString(
+
+                "en-KE",
+
+                {
+
+                    timeZone:
+                    "Africa/Nairobi",
+
+                    hour:"2-digit",
+
+                    minute:"2-digit",
+
+                    hour12:true
+
+                }
+
+            );
+
+
+    };
+
+
+
+
+
+
+
     return (
 
         <div className="h-screen flex flex-col bg-gray-100">
 
 
-            {/* HEADER */}
-
             <div className="bg-red-600 text-white p-5">
+
 
                 <h2 className="text-xl font-bold">
 
@@ -305,17 +498,18 @@ export default function PatientChatPage() {
                 </h2>
 
 
-                <p className="text-sm">
+                <p>
 
                     {
                         adminOnline
                         ?
-                        "Online"
+                        "🟢 Online"
                         :
-                        "Offline"
+                        "⚪ Offline"
                     }
 
                 </p>
+
 
             </div>
 
@@ -324,65 +518,71 @@ export default function PatientChatPage() {
 
 
 
-            {/* MESSAGES */}
-
             <div className="flex-1 overflow-y-auto p-5 space-y-3">
 
 
                 {
-                    messages.map((msg)=>(
+                    messages.map(msg=>(
 
 
                         <div
+
                             key={msg.id}
-                            className={
 
-                                `flex ${
-                                    msg.sender_id === user.id
-                                    ?
-                                    "justify-end"
-                                    :
-                                    "justify-start"
-                                }`
+                            className={`flex ${
+                                msg.sender_id === user.id
+                                ?
+                                "justify-end"
+                                :
+                                "justify-start"
+                            }`}
 
-                            }
                         >
 
 
 
                             <div
 
-                                className={
-
-                                `px-4 py-3 rounded-2xl max-w-md
-
-                                ${
+                                className={`px-4 py-3 rounded-2xl max-w-md shadow ${
                                     msg.sender_id === user.id
-
                                     ?
-
                                     "bg-red-600 text-white"
-
                                     :
-
-                                    "bg-white shadow"
-
-                                }`
-
-                                }
+                                    "bg-white"
+                                }`}
 
                             >
 
-                                {msg.message}
+
+                                <p>
+
+                                    {msg.message}
+
+                                </p>
+
+
+
+                                <div className="text-xs opacity-70 mt-1 text-right">
+
+
+                                    {formatTime(
+                                        msg.created_at
+                                    )}
+
+
+                                </div>
+
 
 
                             </div>
+
 
 
                         </div>
 
 
                     ))
+
                 }
 
 
@@ -391,6 +591,7 @@ export default function PatientChatPage() {
 
 
             </div>
+
 
 
 
@@ -412,7 +613,6 @@ export default function PatientChatPage() {
 
 
 
-            {/* INPUT */}
 
             <div className="p-4 bg-white flex gap-3">
 
@@ -420,6 +620,7 @@ export default function PatientChatPage() {
                 <input
 
                     value={message}
+
 
                     onChange={(e)=>{
 
@@ -430,7 +631,9 @@ export default function PatientChatPage() {
 
 
                         socket.emit(
+
                             "typing",
+
                             {
 
                                 conversation_id:
@@ -445,6 +648,7 @@ export default function PatientChatPage() {
                                 user.full_name
 
                             }
+
                         );
 
 
@@ -459,6 +663,9 @@ export default function PatientChatPage() {
                     }}
 
 
+                    placeholder="Message admin..."
+
+
                     className="
                     flex-1
                     border
@@ -468,10 +675,7 @@ export default function PatientChatPage() {
                     focus:outline-none
                     "
 
-                    placeholder="Message admin..."
-
                 />
-
 
 
 
@@ -493,6 +697,7 @@ export default function PatientChatPage() {
                     Send
 
                 </button>
+
 
 
             </div>

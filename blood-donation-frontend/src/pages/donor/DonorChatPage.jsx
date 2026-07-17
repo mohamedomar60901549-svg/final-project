@@ -29,18 +29,22 @@ export default function DonorChatPage() {
 
 
 
+
+
     // =====================================
     // CREATE ADMIN CHAT
     // =====================================
 
-    useEffect(()=>{
+    useEffect(() => {
+
 
         createConversation();
+
 
         socket.emit(
             "user_online",
             {
-                user_id:user.id
+                user_id: user.id
             }
         );
 
@@ -50,17 +54,18 @@ export default function DonorChatPage() {
         );
 
 
-    },[]);
+    }, []);
 
 
 
-    const createConversation = async()=>{
 
 
-        try{
+    const createConversation = async () => {
+
+        try {
 
 
-            const res = await fetch(
+            const response = await fetch(
 
                 `${API}/api/chat/conversation/1`,
 
@@ -80,7 +85,9 @@ export default function DonorChatPage() {
             );
 
 
-            const data = await res.json();
+            const data =
+                await response.json();
+
 
 
             setConversationId(
@@ -88,15 +95,16 @@ export default function DonorChatPage() {
             );
 
 
+        } catch(error){
+
+            console.error(error);
+
         }
-        catch(err){
-
-            console.log(err);
-
-        }
-
 
     };
+
+
+
 
 
 
@@ -106,8 +114,7 @@ export default function DonorChatPage() {
     // LOAD MESSAGES
     // =====================================
 
-
-    useEffect(()=>{
+    useEffect(() => {
 
 
         if(!conversationId)
@@ -142,6 +149,7 @@ export default function DonorChatPage() {
 
 
 
+
         socket.emit(
 
             "join_room",
@@ -154,6 +162,7 @@ export default function DonorChatPage() {
             }
 
         );
+
 
 
 
@@ -185,158 +194,167 @@ export default function DonorChatPage() {
 
 
 
+
+
     // =====================================
     // SOCKET EVENTS
     // =====================================
 
-
     useEffect(()=>{
 
 
-        socket.on(
+        const receiveMessage = (data)=>{
 
-            "receive_message",
 
-            (data)=>{
+            if(
+                data.conversation_id === conversationId
+            ){
 
 
-                if(
-                    data.conversation_id === conversationId
-                ){
+                setMessages(prev=>{
 
 
-                    setMessages(prev=>{
-
-
-                        const exists =
-                        prev.find(
-                            m=>m.id===data.id
-                        );
-
-
-                        if(exists)
-                            return prev;
-
-
-
-                        return [
-
-                            ...prev,
-
-                            data
-
-                        ];
-
-
-                    });
-
-
-
-                }
-
-
-            }
-
-        );
-
-
-
-
-
-        socket.on(
-
-            "online_users",
-
-            (users)=>{
-
-
-                if(users.includes(1)){
-
-                    setAdminOnline(true);
-
-                }
-
-
-            }
-
-        );
-
-
-
-
-
-        socket.on(
-
-            "user_connected",
-
-            (data)=>{
-
-
-                if(data.user_id===1){
-
-                    setAdminOnline(true);
-
-                }
-
-
-            }
-
-        );
-
-
-
-
-
-        socket.on(
-
-            "user_disconnected",
-
-            (data)=>{
-
-
-                if(data.user_id===1){
-
-                    setAdminOnline(false);
-
-                }
-
-
-            }
-
-        );
-
-
-
-
-
-        socket.on(
-
-            "user_typing",
-
-            (data)=>{
-
-
-                if(data.user_id!==user.id){
-
-
-                    setTypingUser(
-                        data.user_name
+                    const exists =
+                    prev.some(
+                        msg=>msg.id === data.id
                     );
 
 
-                    setTimeout(()=>{
-
-                        setTypingUser(null);
-
-                    },2000);
+                    if(exists)
+                        return prev;
 
 
-                }
+
+                    return [
+                        ...prev,
+                        data
+                    ];
+
+
+                });
 
 
             }
 
+
+        };
+
+
+
+
+
+        const updateOnlineUsers = (users)=>{
+
+
+            setAdminOnline(
+
+                users.includes(1)
+
+            );
+
+
+        };
+
+
+
+
+
+
+        const userConnected = (data)=>{
+
+
+            if(data.user_id === 1){
+
+                setAdminOnline(true);
+
+            }
+
+
+        };
+
+
+
+
+
+
+        const userDisconnected = (data)=>{
+
+
+            if(data.user_id === 1){
+
+                setAdminOnline(false);
+
+            }
+
+
+        };
+
+
+
+
+
+
+
+        const typing = (data)=>{
+
+
+            if(
+                data.user_id !== user.id
+            ){
+
+
+                setTypingUser(
+                    data.user_name
+                );
+
+
+
+                setTimeout(()=>{
+
+                    setTypingUser(null);
+
+                },2000);
+
+
+            }
+
+
+        };
+
+
+
+
+
+        socket.on(
+            "receive_message",
+            receiveMessage
         );
+
+
+        socket.on(
+            "online_users",
+            updateOnlineUsers
+        );
+
+
+        socket.on(
+            "user_connected",
+            userConnected
+        );
+
+
+        socket.on(
+            "user_disconnected",
+            userDisconnected
+        );
+
+
+        socket.on(
+            "user_typing",
+            typing
+        );
+
+
 
 
 
@@ -345,27 +363,32 @@ export default function DonorChatPage() {
 
 
             socket.off(
-                "receive_message"
+                "receive_message",
+                receiveMessage
             );
 
 
             socket.off(
-                "online_users"
+                "online_users",
+                updateOnlineUsers
             );
 
 
             socket.off(
-                "user_connected"
+                "user_connected",
+                userConnected
             );
 
 
             socket.off(
-                "user_disconnected"
+                "user_disconnected",
+                userDisconnected
             );
 
 
             socket.off(
-                "user_typing"
+                "user_typing",
+                typing
             );
 
 
@@ -381,10 +404,10 @@ export default function DonorChatPage() {
 
 
 
+
     // =====================================
     // AUTO SCROLL
     // =====================================
-
 
     useEffect(()=>{
 
@@ -405,59 +428,16 @@ export default function DonorChatPage() {
 
 
 
+
     // =====================================
     // SEND MESSAGE
     // =====================================
-
 
     const sendMessage = ()=>{
 
 
         if(!message.trim())
             return;
-
-
-
-        const tempMessage={
-
-
-            id:
-            Date.now(),
-
-
-            sender_id:
-            user.id,
-
-
-            receiver_id:
-            1,
-
-
-            message:
-            message,
-
-
-            created_at:
-            new Date().toISOString(),
-
-
-            sending:true
-
-
-        };
-
-
-
-        // show immediately
-
-        setMessages(prev=>[
-
-            ...prev,
-
-            tempMessage
-
-        ]);
-
 
 
 
@@ -480,20 +460,77 @@ export default function DonorChatPage() {
 
 
                 message:
-                message
+                message.trim()
 
             }
 
         );
 
 
-
         setMessage("");
-
-
 
     };
 
+
+
+
+
+
+
+
+
+    // =====================================
+    // FORMAT TIME
+    // =====================================
+
+    const formatTime = (time)=>{
+
+
+        if(!time)
+            return "";
+
+
+
+        let timestamp=time;
+
+
+
+        if(
+            typeof timestamp==="string" &&
+            !timestamp.endsWith("Z") &&
+            !timestamp.includes("+")
+        ){
+
+            timestamp += "Z";
+
+        }
+
+
+
+
+        return new Date(timestamp)
+
+        .toLocaleTimeString(
+
+            "en-KE",
+
+            {
+
+                timeZone:
+                "Africa/Nairobi",
+
+                hour:"2-digit",
+
+                minute:"2-digit",
+
+                hour12:true
+
+            }
+
+        );
+
+
+    };
 
 
 
@@ -507,8 +544,6 @@ export default function DonorChatPage() {
         <div className="h-screen flex flex-col bg-gray-100">
 
 
-
-            {/* HEADER */}
 
             <div className="bg-red-600 text-white p-5">
 
@@ -545,39 +580,24 @@ export default function DonorChatPage() {
 
 
 
-
-            {/* MESSAGES */}
-
-
             <div className="flex-1 overflow-y-auto p-5 space-y-3">
 
 
                 {
-
                     messages.map(msg=>(
 
 
                         <div
 
-                        key={msg.id}
+                            key={msg.id}
 
-                        className={
-
-                        `flex ${
-                            msg.sender_id===user.id
-
-                            ?
-
-                            "justify-end"
-
-                            :
-
-                            "justify-start"
-
-                        }`
-
-                        }
-
+                            className={`flex ${
+                                msg.sender_id===user.id
+                                ?
+                                "justify-end"
+                                :
+                                "justify-start"
+                            }`}
 
                         >
 
@@ -585,25 +605,13 @@ export default function DonorChatPage() {
 
                             <div
 
-                            className={
-
-                            `max-w-md px-4 py-3 rounded-2xl shadow
-
-                            ${
-                                msg.sender_id===user.id
-
-                                ?
-
-                                "bg-red-600 text-white"
-
-                                :
-
-                                "bg-white"
-
-                            }`
-
-                            }
-
+                                className={`max-w-md px-4 py-3 rounded-2xl shadow ${
+                                    msg.sender_id===user.id
+                                    ?
+                                    "bg-red-600 text-white"
+                                    :
+                                    "bg-white"
+                                }`}
 
                             >
 
@@ -615,30 +623,18 @@ export default function DonorChatPage() {
                                 </p>
 
 
-
                                 <div className="text-xs opacity-70 mt-1">
 
-
-                                    {
-
-                                    new Date(
+                                    {formatTime(
                                         msg.created_at
-                                    )
-                                    .toLocaleTimeString(
-                                        [],
-                                        {
-                                            hour:"2-digit",
-                                            minute:"2-digit"
-                                        }
-                                    )
-
-                                    }
-
+                                    )}
 
                                 </div>
 
 
+
                             </div>
+
 
 
                         </div>
@@ -662,7 +658,6 @@ export default function DonorChatPage() {
 
 
             {
-
                 typingUser &&
 
                 <div className="px-5 text-gray-500">
@@ -680,76 +675,66 @@ export default function DonorChatPage() {
 
 
 
-            {/* INPUT */}
-
-
             <div className="p-4 bg-white flex gap-3">
 
 
                 <input
 
-
-                value={message}
-
-
-                onChange={(e)=>{
+                    value={message}
 
 
-                    setMessage(
-                        e.target.value
-                    );
+                    onChange={(e)=>{
 
 
-                    socket.emit(
-
-                        "typing",
-
-                        {
-
-                        conversation_id:
-                        conversationId,
+                        setMessage(
+                            e.target.value
+                        );
 
 
-                        user_id:
-                        user.id,
+                        socket.emit(
+
+                            "typing",
+
+                            {
+
+                                conversation_id:
+                                conversationId,
 
 
-                        user_name:
-                        user.full_name
-
-                        }
-
-                    );
+                                user_id:
+                                user.id,
 
 
-                }}
+                                user_name:
+                                user.full_name
+
+                            }
+
+                        );
 
 
-                onKeyDown={(e)=>{
+                    }}
 
 
-                    if(e.key==="Enter"){
+                    onKeyDown={(e)=>{
 
-                        sendMessage();
+                        if(e.key==="Enter")
+                            sendMessage();
 
-                    }
-
-
-                }}
+                    }}
 
 
-                placeholder="Message admin..."
+                    placeholder="Message admin..."
 
 
-                className="
-                flex-1
-                border
-                rounded-full
-                px-5
-                py-3
-                outline-none
-                "
-
+                    className="
+                    flex-1
+                    border
+                    rounded-full
+                    px-5
+                    py-3
+                    outline-none
+                    "
 
                 />
 
@@ -759,15 +744,14 @@ export default function DonorChatPage() {
 
                 <button
 
-                onClick={sendMessage}
+                    onClick={sendMessage}
 
-
-                className="
-                bg-red-600
-                text-white
-                px-6
-                rounded-full
-                "
+                    className="
+                    bg-red-600
+                    text-white
+                    px-6
+                    rounded-full
+                    "
 
                 >
 
@@ -778,7 +762,6 @@ export default function DonorChatPage() {
 
 
             </div>
-
 
 
         </div>

@@ -2,48 +2,91 @@ export default function MessageBubble({
     message,
     currentUserId,
 }) {
-    const isMine = message.sender_id === currentUserId;
+
+    const isMine =
+        message.sender_id === currentUserId;
+
 
     const formatTime = (time) => {
+
         if (!time) return "";
 
-        const date = new Date(time);
 
-        if (isNaN(date.getTime())) return "";
+        let timestamp = time;
 
-        return date.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
+
+        // Flask UTC datetime fix
+        // Add Z if backend sends UTC without timezone
+        if (
+            typeof timestamp === "string" &&
+            !timestamp.endsWith("Z") &&
+            !timestamp.includes("+")
+        ) {
+            timestamp += "Z";
+        }
+
+
+        const date = new Date(timestamp);
+
+
+        if (isNaN(date.getTime())) {
+            return "";
+        }
+
+
+        return date.toLocaleTimeString(
+            "en-KE",
+            {
+                timeZone: "Africa/Nairobi",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            }
+        );
+
     };
 
+
+
     const renderStatus = () => {
+
         if (!isMine) return null;
 
+
         if (message.is_read) {
+
             return (
                 <span className="text-blue-200 font-bold">
                     ✓✓
                 </span>
             );
+
         }
 
+
         if (message.delivered) {
+
             return (
                 <span className="text-red-100 font-bold">
                     ✓✓
                 </span>
             );
+
         }
+
 
         return (
             <span className="text-red-100 font-bold">
                 ✓
             </span>
         );
+
     };
 
+
+
     return (
+
         <div
             className={`flex mb-3 ${
                 isMine
@@ -51,6 +94,7 @@ export default function MessageBubble({
                     : "justify-start"
             }`}
         >
+
             <div
                 className={`
                     max-w-[75%]
@@ -60,8 +104,6 @@ export default function MessageBubble({
                     rounded-2xl
                     shadow
                     break-words
-                    transition-all
-                    duration-200
 
                     ${
                         isMine
@@ -70,13 +112,13 @@ export default function MessageBubble({
                     }
                 `}
             >
-                {/* Message */}
+
 
                 <p className="whitespace-pre-wrap leading-relaxed">
                     {message.message}
                 </p>
 
-                {/* Footer */}
+
 
                 <div
                     className={`
@@ -94,13 +136,22 @@ export default function MessageBubble({
                         }
                     `}
                 >
+
                     <span>
                         {formatTime(message.created_at)}
                     </span>
 
+
                     {renderStatus()}
+
+
                 </div>
+
+
             </div>
+
         </div>
+
     );
+
 }

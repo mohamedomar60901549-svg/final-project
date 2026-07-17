@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import useChat from "../../hooks/useChat";
 
 import {
-    getUsers,
-    createConversation
+    getUsers
 } from "../../services/chatService";
 
 import ChatSidebar from "../../components/chat/ChatSidebar";
@@ -44,45 +43,96 @@ export default function AdminChatPage() {
 
     } = useChat(user);
 
-        useEffect(() => {
+
+
+    // ==============================
+    // LOAD ALL USERS FOR ADMIN CHAT
+    // ==============================
+
+    useEffect(() => {
 
         async function loadUsers() {
 
-            const data = await getUsers();
+            try {
 
-            setUsers(data);
+                const data = await getUsers();
+
+                setUsers(data);
+
+            } catch (error) {
+
+                console.error(
+                    "Failed loading users:",
+                    error
+                );
+
+            }
 
         }
+
 
         loadUsers();
 
     }, []);
 
-        const openConversation = async (selected) => {
+
+
+
+    // ==============================
+    // OPEN CONVERSATION
+    // ==============================
+
+    const openConversation = async (selected) => {
 
         setSelectedUser(selected);
 
-        const result = await createConversation(
+        await loadConversation(
             selected.id
-        );
-
-        loadConversation(
-            result.conversation_id
         );
 
     };
 
-        return (
+
+
+
+    // ==============================
+    // SEND MESSAGE
+    // ==============================
+
+    const handleSend = () => {
+
+        if (!message.trim()) return;
+
+
+        sendMessage(
+            selectedUser.id,
+            message
+        );
+
+
+        setMessage("");
+
+    };
+
+
+
+
+    return (
 
         <div className="h-screen flex bg-gray-100">
 
+
+            {/* SIDEBAR */}
+
             <ChatSidebar
+
+                title="Conversations"
 
                 users={users}
 
                 selectedUser={selectedUser}
 
-                onSelect={openConversation}
+                onSelectUser={openConversation}
 
                 notifications={notifications}
 
@@ -92,39 +142,74 @@ export default function AdminChatPage() {
 
 
 
+
             {
 
                 selectedUser ? (
 
                     <div className="flex-1 flex flex-col">
 
+
+
+                        {/* HEADER */}
+
                         <ChatHeader
 
-                            user={selectedUser}
+                            title={
+                                selectedUser.full_name
+                            }
 
-                            online={onlineUsers.includes(selectedUser.id)}
+                            subtitle={
+                                selectedUser.role
+                            }
+
+                            avatar={
+                                selectedUser.full_name
+                                    ?.charAt(0)
+                            }
+
+                            online={
+                                onlineUsers.includes(
+                                    selectedUser.id
+                                )
+                            }
 
                         />
 
 
+
+
+                        {/* MESSAGES */}
 
                         <MessageList
 
                             messages={messages}
 
-                            currentUser={user}
+                            currentUserId={
+                                user.id
+                            }
 
-                            messagesEndRef={messagesEndRef}
+                            messagesEndRef={
+                                messagesEndRef
+                            }
 
                         />
 
 
 
+
+                        {/* TYPING */}
+
                         {
 
                             typingUser && (
 
-                                <div className="px-5 py-2 text-sm text-gray-500">
+                                <div className="
+                                    px-5
+                                    py-2
+                                    text-sm
+                                    text-gray-500
+                                ">
 
                                     {typingUser} is typing...
 
@@ -136,61 +221,75 @@ export default function AdminChatPage() {
 
 
 
+
+                        {/* INPUT */}
+
                         <ChatInput
 
                             value={message}
 
-                            onChange={(e) => {
+                            onChange={(text) => {
 
-                                setMessage(e.target.value);
+                                setMessage(text);
 
                                 sendTyping();
 
                             }}
 
-                            onSend={() => {
-
-                                sendMessage(
-
-                                    selectedUser.id,
-
-                                    message
-
-                                );
-
-                                setMessage("");
-
-                            }}
+                            onSend={
+                                handleSend
+                            }
 
                         />
 
+
                     </div>
+
 
                 ) : (
 
-                    <div className="flex-1 flex items-center justify-center bg-gray-100">
+
+                    <div className="
+                        flex-1
+                        flex
+                        items-center
+                        justify-center
+                        bg-gray-100
+                    ">
 
                         <div className="text-center">
 
-                            <h2 className="text-3xl font-bold">
+
+                            <h2 className="
+                                text-3xl
+                                font-bold
+                            ">
 
                                 💬 LifeLink Chat
 
                             </h2>
 
-                            <p className="mt-2 text-gray-500">
+
+                            <p className="
+                                mt-2
+                                text-gray-500
+                            ">
 
                                 Select a conversation from the left.
 
                             </p>
 
+
                         </div>
 
+
                     </div>
+
 
                 )
 
             }
+
 
         </div>
 
