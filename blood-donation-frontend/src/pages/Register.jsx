@@ -6,11 +6,11 @@ function Register() {
     full_name: "",
     email: "",
     phone: "",
+    location: "",
     blood_group: "",
     password: "",
     confirmPassword: "",
     role: "",
-    location: "Nairobi",
   });
 
   const [message, setMessage] = useState("");
@@ -38,6 +38,7 @@ function Register() {
       !formData.full_name ||
       !formData.email ||
       !formData.phone ||
+      !formData.location ||
       !formData.blood_group ||
       !formData.password ||
       !formData.confirmPassword ||
@@ -76,10 +77,10 @@ function Register() {
             full_name: formData.full_name,
             email: formData.email,
             phone: formData.phone,
+            location: formData.location,
             blood_group: formData.blood_group,
             password: formData.password,
             role: formData.role,
-            location: formData.location,
           }),
         }
       );
@@ -94,11 +95,11 @@ function Register() {
           full_name: "",
           email: "",
           phone: "",
+          location: "",
           blood_group: "",
           password: "",
           confirmPassword: "",
           role: "",
-          location: "Nairobi",
         });
       } else {
         setMessage(data.message || "Registration failed.");
@@ -114,7 +115,6 @@ function Register() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-10 px-6">
       <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
-
         <h1 className="text-3xl font-bold text-center text-red-600 mb-6">
           Create Account
         </h1>
@@ -131,10 +131,7 @@ function Register() {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          autoComplete="off"
-        >
+        <form onSubmit={handleSubmit} autoComplete="off">
           {/* Hidden fields to reduce browser autofill */}
           <input
             type="text"
@@ -183,6 +180,19 @@ function Register() {
             value={formData.phone}
             onChange={handleChange}
             autoComplete="off"
+            spellCheck={false}
+            className="w-full border rounded-lg p-3 mb-4"
+            required
+          />
+
+          <input
+            type="text"
+            name="location"
+            placeholder="Enter Your Location"
+            value={formData.location}
+            onChange={handleChange}
+            autoComplete="off"
+            spellCheck={false}
             className="w-full border rounded-lg p-3 mb-4"
             required
           />
@@ -195,14 +205,14 @@ function Register() {
             required
           >
             <option value="">Select Blood Group</option>
-            <option>A+</option>
-            <option>A-</option>
-            <option>B+</option>
-            <option>B-</option>
-            <option>AB+</option>
-            <option>AB-</option>
-            <option>O+</option>
-            <option>O-</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
           </select>
 
           <input
@@ -246,7 +256,6 @@ function Register() {
           >
             {loading ? "Creating Account..." : "Register"}
           </button>
-
         </form>
 
         <div className="text-center mt-6">
@@ -269,7 +278,6 @@ function Register() {
             </Link>
           </p>
         </div>
-
       </div>
     </div>
   );
