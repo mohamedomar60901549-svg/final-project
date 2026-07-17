@@ -1,86 +1,86 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import MessageBubble from "./MessageBubble";
 
 export default function MessageList({
-
-    messages,
-
-    currentUserId
-
+    messages = [],
+    currentUserId,
+    messagesEndRef,
+    loading = false,
 }) {
-
-    const bottomRef = useRef(null);
-
     // =====================================
-    // AUTO SCROLL TO LATEST MESSAGE
+    // AUTO SCROLL
     // =====================================
 
     useEffect(() => {
-
-        bottomRef.current?.scrollIntoView({
-
-            behavior: "smooth"
-
+        messagesEndRef?.current?.scrollIntoView({
+            behavior: "smooth",
         });
+    }, [messages, messagesEndRef]);
 
-    }, [messages]);
+    // =====================================
+    // LOADING
+    // =====================================
 
+    if (loading) {
+        return (
+            <div className="flex-1 flex items-center justify-center bg-gray-100">
+                <div className="text-gray-500 animate-pulse">
+                    Loading conversation...
+                </div>
+            </div>
+        );
+    }
 
+    // =====================================
+    // EMPTY CHAT
+    // =====================================
+
+    if (messages.length === 0) {
+        return (
+            <div className="flex-1 flex items-center justify-center bg-gray-100">
+                <div className="text-center">
+
+                    <div className="text-6xl mb-4">
+                        💬
+                    </div>
+
+                    <h2 className="text-xl font-semibold text-gray-700">
+                        No messages yet
+                    </h2>
+
+                    <p className="text-gray-500 mt-2">
+                        Start the conversation by sending a message.
+                    </p>
+
+                </div>
+            </div>
+        );
+    }
+
+    // =====================================
+    // MESSAGE LIST
+    // =====================================
 
     return (
-
         <div
-
             className="
                 flex-1
                 overflow-y-auto
-                p-5
-                space-y-3
                 bg-gray-100
+                px-5
+                py-4
+                space-y-1
             "
-
         >
+            {messages.map((msg) => (
+                <MessageBubble
+                    key={msg.id}
+                    message={msg}
+                    currentUserId={currentUserId}
+                />
+            ))}
 
-            {
-
-                messages.length === 0 && (
-
-                    <div className="text-center text-gray-500 mt-10">
-
-                        No messages yet.
-
-                    </div>
-
-                )
-
-            }
-
-
-
-            {
-
-                messages.map((msg) => (
-
-                    <MessageBubble
-
-                        key={msg.id}
-
-                        message={msg}
-
-                        currentUserId={currentUserId}
-
-                    />
-
-                ))
-
-            }
-
-
-
-            <div ref={bottomRef}></div>
-
+            <div ref={messagesEndRef} />
         </div>
-
     );
-
 }
