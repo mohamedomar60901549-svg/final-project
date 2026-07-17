@@ -237,18 +237,6 @@ def register_socket_events(socketio):
 
 
     # ======================================================
-    # GET ONLINE USERS
-    # ======================================================
-
-    @socketio.on("get_online_users")
-    def handle_get_online_users():
-
-        emit(
-            "online_users",
-            list(online_users)
-        )
-
-    # ======================================================
     # CLIENT CONNECT
     # ======================================================
 
