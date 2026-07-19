@@ -176,7 +176,7 @@ function Navbar() {
       {menuOpen && (
 
 
-        <div className="md:hidden bg-red-700 px-6 py-5 space-y-4">
+        <div className="md:hidden bg-red-600 px-6 py-5 space-y-4">
 
 
 
