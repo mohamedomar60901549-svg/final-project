@@ -39,6 +39,8 @@ import DonorProfile from "../pages/donor/DonorProfile";
 import DonationHistory from "../pages/donor/DonationHistory";
 import DonateBlood from "../pages/donor/DonateBlood";
 
+import DonorBloodRequests from "../pages/donor/BloodRequests";
+
 import DonorChatPage from "../pages/donor/DonorChatPage";
 
 
@@ -52,6 +54,8 @@ import CreateRequest from "../pages/patient/CreateRequest";
 import MyRequests from "../pages/patient/MyRequests";
 import FindDonors from "../pages/patient/FindDonors";
 
+import DonorResponses from "../pages/patient/DonorResponses";
+
 import PatientChatPage from "../pages/patient/PatientChatPage";
 
 
@@ -63,11 +67,15 @@ import AdminLayout from "../layouts/AdminLayout";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageUsers from "../pages/admin/ManageUsers";
 import ManageDonors from "../pages/admin/ManageDonors";
+
 import BloodRequests from "../pages/admin/BloodRequests";
+
 import ManageDonations from "../pages/admin/ManageDonations";
 import Reports from "../pages/admin/Reports";
 
 import AdminChatPage from "../pages/admin/AdminChatPage";
+
+
 
 
 
@@ -80,6 +88,8 @@ return (
 
 
 
+
+
 {/* =================================================
     PUBLIC WEBSITE
 ================================================= */}
@@ -88,57 +98,95 @@ return (
 <Route path="/" element={<PublicLayout />}>
 
 
+
 <Route index element={<Home />} />
 
-<Route path="about" element={<About />} />
 
-<Route path="how-it-works" element={<HowItWorks />} />
+<Route
+path="about"
+element={<About />}
+/>
 
-<Route path="hospitals" element={<Hospitals />} />
 
-<Route path="faq" element={<FAQ />} />
+<Route
+path="how-it-works"
+element={<HowItWorks />}
+/>
 
-<Route path="contact" element={<Contact />} />
+
+<Route
+path="hospitals"
+element={<Hospitals />}
+/>
+
+
+<Route
+path="faq"
+element={<FAQ />}
+/>
+
+
+<Route
+path="contact"
+element={<Contact />}
+/>
+
+
 
 
 
 {/* AUTH */}
 
-<Route path="login" element={<Login />} />
 
-<Route path="register" element={<Register />} />
-
-<Route 
-path="forgot-password" 
-element={<ForgotPassword />} 
+<Route
+path="login"
+element={<Login />}
 />
 
 
-<Route 
-path="reset-password/:token" 
-element={<ResetPassword />} 
+<Route
+path="register"
+element={<Register />}
 />
 
 
-<Route 
-path="verify-email/:token" 
-element={<VerifyEmail />} 
+<Route
+path="forgot-password"
+element={<ForgotPassword />}
 />
 
 
-<Route 
-path="change-password" 
-element={<ChangePassword />} 
+<Route
+path="reset-password/:token"
+element={<ResetPassword />}
 />
 
 
-<Route 
-path="resend-verification" 
-element={<ResendVerification />} 
+<Route
+path="verify-email/:token"
+element={<VerifyEmail />}
 />
+
+
+<Route
+path="change-password"
+element={<ChangePassword />}
+/>
+
+
+<Route
+path="resend-verification"
+element={<ResendVerification />}
+/>
+
 
 
 </Route>
+
+
+
+
+
 
 
 
@@ -149,43 +197,57 @@ element={<ResendVerification />}
 ================================================= */}
 
 
-<Route 
+
+<Route
+
 path="/donor"
+
 element={<DonorRoute />}
+
 >
+
 
 
 <Route element={<DonorLayout />}>
 
 
-<Route 
+
+<Route
 path="dashboard"
 element={<DonorDashboard />}
 />
 
 
-<Route 
+
+<Route
 path="profile"
 element={<DonorProfile />}
 />
 
 
-<Route 
+
+<Route
 path="history"
 element={<DonationHistory />}
 />
 
 
-<Route 
+
+<Route
 path="donate"
 element={<DonateBlood />}
 />
 
 
 
-{/* CHAT */}
+<Route
+path="blood-requests"
+element={<DonorBloodRequests />}
+/>
 
-<Route 
+
+
+<Route
 path="chat"
 element={<DonorChatPage />}
 />
@@ -195,7 +257,9 @@ element={<DonorChatPage />}
 </Route>
 
 
+
 </Route>
+
 
 
 
@@ -209,6 +273,7 @@ element={<DonorChatPage />}
 ================================================= */}
 
 
+
 <Route
 
 path="/patient"
@@ -218,37 +283,49 @@ element={<PatientRoute />}
 >
 
 
+
 <Route element={<PatientLayout />}>
 
 
-<Route 
+
+<Route
 path="dashboard"
 element={<PatientDashboard />}
 />
 
 
-<Route 
+
+<Route
 path="request"
 element={<CreateRequest />}
 />
 
 
-<Route 
+
+<Route
 path="requests"
 element={<MyRequests />}
 />
 
 
-<Route 
+
+<Route
 path="donors"
 element={<FindDonors />}
 />
 
 
 
-{/* CHAT */}
+{/* DONOR RESPONSES */}
 
-<Route 
+<Route
+path="responses"
+element={<DonorResponses />}
+/>
+
+
+
+<Route
 path="chat"
 element={<PatientChatPage />}
 />
@@ -258,8 +335,8 @@ element={<PatientChatPage />}
 </Route>
 
 
-</Route>
 
+</Route>
 
 
 
@@ -288,46 +365,50 @@ element={<AdminRoute />}
 <Route element={<AdminLayout />}>
 
 
-<Route 
+
+<Route
 path="dashboard"
 element={<AdminDashboard />}
 />
 
 
-<Route 
+
+<Route
 path="users"
 element={<ManageUsers />}
 />
 
 
-<Route 
+
+<Route
 path="donors"
 element={<ManageDonors />}
 />
 
 
-<Route 
+
+<Route
 path="requests"
 element={<BloodRequests />}
 />
 
 
-<Route 
+
+<Route
 path="donations"
 element={<ManageDonations />}
 />
 
 
-<Route 
+
+<Route
 path="reports"
 element={<Reports />}
 />
 
 
 
-{/* CHAT */}
-
-<Route 
+<Route
 path="chat"
 element={<AdminChatPage />}
 />
@@ -337,6 +418,7 @@ element={<AdminChatPage />}
 </Route>
 
 
+
 </Route>
 
 
@@ -344,9 +426,13 @@ element={<AdminChatPage />}
 
 
 
+
+
+
 {/* =================================================
-    404
+    404 PAGE
 ================================================= */}
+
 
 
 <Route
@@ -355,7 +441,9 @@ path="*"
 
 element={
 
+
 <div className="min-h-screen flex items-center justify-center">
+
 
 <h1 className="text-4xl font-bold text-red-600">
 
@@ -363,7 +451,9 @@ element={
 
 </h1>
 
+
 </div>
+
 
 }
 
@@ -372,7 +462,6 @@ element={
 
 
 </Routes>
-
 
 );
 
