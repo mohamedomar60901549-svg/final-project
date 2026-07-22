@@ -1,5 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ChevronDown, Phone, Mail, MapPin, Clock, 
+  Heart, Droplets, Users, Hospital, Shield,
+  ArrowRight, Sparkles, UserPlus, CheckCircle,
+  AlertCircle, HelpCircle, MessageCircle,
+  Award, TrendingUp, Calendar, Activity
+} from "lucide-react";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(0);
@@ -8,535 +16,342 @@ export default function FAQ() {
     {
       category: "Donor Eligibility",
       question: "Who can donate blood?",
-      answer:
-        "Healthy adults aged between 18 and 65 years, weighing at least 50 kg, and meeting the medical requirements can donate blood. Every donor undergoes a health assessment before donating."
+      answer: "Healthy adults aged between 18 and 65 years, weighing at least 50 kg, and meeting the medical requirements can donate blood. Every donor undergoes a health assessment before donating."
     },
     {
       category: "Safety",
       question: "Is blood donation safe?",
-      answer:
-        "Yes. LifeLink works with licensed healthcare professionals and partner hospitals. Sterile, single-use equipment is used for every donation, making the process safe for both donors and recipients."
+      answer: "Yes. LifeLink works with licensed healthcare professionals and partner hospitals. Sterile, single-use equipment is used for every donation, making the process safe for both donors and recipients."
     },
     {
       category: "Donation",
       question: "How often can I donate blood?",
-      answer:
-        "Most healthy adults can donate whole blood every 12 to 16 weeks depending on national medical guidelines and individual health status."
+      answer: "Most healthy adults can donate whole blood every 12 to 16 weeks depending on national medical guidelines and individual health status."
     },
     {
       category: "Registration",
       question: "How do I become a donor?",
-      answer:
-        "Create a LifeLink account, verify your email, complete your profile with your blood group and location, then update your availability whenever you're ready to donate."
+      answer: "Create a LifeLink account, verify your email, complete your profile with your blood group and location, then update your availability whenever you're ready to donate."
     },
     {
       category: "Emergency Requests",
       question: "How does LifeLink help patients?",
-      answer:
-        "Patients can submit emergency blood requests that are immediately visible to administrators and compatible donors, helping reduce delays during emergencies."
+      answer: "Patients can submit emergency blood requests that are immediately visible to administrators and compatible donors, helping reduce delays during emergencies."
     },
     {
       category: "Matching",
       question: "How are donors matched?",
-      answer:
-        "LifeLink matches donors using blood group compatibility, location, availability, and request priority to improve response time."
+      answer: "LifeLink matches donors using blood group compatibility, location, availability, and request priority to improve response time."
     },
     {
       category: "Privacy",
       question: "Is my personal information secure?",
-      answer:
-        "Yes. User information is protected through secure authentication, encrypted communication, and controlled access within the LifeLink platform."
+      answer: "Yes. User information is protected through secure authentication, encrypted communication, and controlled access within the LifeLink platform."
     },
     {
       category: "Hospitals",
       question: "Can hospitals use LifeLink?",
-      answer:
-        "Yes. Hospitals can manage blood requests, communicate with donors, monitor donations, and coordinate emergency responses through the platform."
+      answer: "Yes. Hospitals can manage blood requests, communicate with donors, monitor donations, and coordinate emergency responses through the platform."
     }
   ];
 
   const contacts = [
-    {
-      icon: "📞",
-      title: "Phone",
-      value: "+254 729 667 133"
-    },
-    {
-      icon: "📧",
-      title: "Email",
-      value: "lifelink.bloodsystem@gmail.com"
-    },
-    {
-      icon: "📍",
-      title: "Location",
-      value: "Garissa, Kenya"
-    },
-    {
-      icon: "🕒",
-      title: "Support",
-      value: "24/7 Emergency Assistance"
-    }
+    { icon: <Phone className="size-5" />, title: "Phone", value: "+254 729 667 133" },
+    { icon: <Mail className="size-5" />, title: "Email", value: "lifelink.bloodsystem@gmail.com" },
+    { icon: <MapPin className="size-5" />, title: "Location", value: "Garissa, Kenya" },
+    { icon: <Clock className="size-5" />, title: "Support", value: "24/7 Emergency Assistance" },
+  ];
+
+  const stats = [
+    { icon: <Users className="size-6" />, value: "500+", label: "Registered Donors" },
+    { icon: <Droplets className="size-6" />, value: "120+", label: "Blood Requests" },
+    { icon: <Hospital className="size-6" />, value: "25+", label: "Partner Hospitals" },
+    { icon: <Activity className="size-6" />, value: "24/7", label: "Emergency Support" },
   ];
 
   return (
-    <div className="bg-gray-50">
-
+    <div className="min-h-screen bg-background">
       {/* ================= HERO ================= */}
-
-      <section className="relative h-[500px] flex items-center justify-center overflow-hidden">
-
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1615461066847-6116e61058f4?auto=format&fit=crop&w=1600&q=80')",
-          }}
-        />
-
-        <div className="absolute inset-0 bg-slate-900/75" />
-
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white">
-
-          <span className="inline-block bg-white/20 backdrop-blur-md px-5 py-2 rounded-full font-semibold mb-6">
-            Frequently Asked Questions
-          </span>
-
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 soft-grid-bg opacity-60" aria-hidden />
+        <div className="absolute inset-x-0 -top-32 -z-10 h-[420px] bg-gradient-to-b from-red-600/20 to-transparent" aria-hidden />
+        <div className="container-page pt-16 pb-20 md:pt-24 md:pb-28 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground mx-auto"
+          >
+            <span className="size-1.5 rounded-full bg-red-600" /> Frequently Asked Questions
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="mt-6 text-5xl md:text-6xl font-extrabold text-foreground leading-tight"
+          >
             Everything You Need To Know
-          </h1>
-
-          <p className="mt-6 text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-8">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.12 }}
+            className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+          >
             Find answers to common questions about blood donation,
             emergency blood requests, donor registration,
             hospital collaboration, and LifeLink services.
-          </p>
-
+          </motion.p>
         </div>
-
       </section>
 
       {/* ================= CONTACT INFO ================= */}
-
-      <section className="py-16 bg-white border-b">
-
+      <section className="py-16 bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-6">
-
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            {contacts.map((item) => (
-
-              <div
+            {contacts.map((item, i) => (
+              <motion.div
                 key={item.title}
-                className="bg-gray-50 rounded-2xl p-6 shadow-sm border hover:shadow-lg transition duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="group rounded-2xl border border-border bg-card p-6 shadow-soft hover:shadow-xl transition hover:-translate-y-1"
               >
-
-                <div className="text-4xl mb-4">
+                <div className="mb-3 inline-flex size-11 items-center justify-center rounded-xl bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
                   {item.icon}
                 </div>
-
-                <h3 className="font-bold text-lg text-gray-800">
-                  {item.title}
-                </h3>
-
-                <p className="mt-2 text-gray-600">
-                  {item.value}
-                </p>
-
-              </div>
-
+                <h3 className="font-semibold text-foreground">{item.title}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{item.value}</p>
+              </motion.div>
             ))}
-
           </div>
-
         </div>
-
       </section>
 
       {/* ================= FAQ SECTION ================= */}
-
-      <section className="py-24">
-
+      <section className="py-24 bg-slate-50">
         <div className="max-w-5xl mx-auto px-6">
-
           <div className="text-center mb-16">
-
-            <span className="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full font-semibold">
+            <span className="inline-block rounded-full bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-700 uppercase tracking-wider">
               Common Questions
             </span>
-
-            <h2 className="text-4xl font-bold text-gray-900 mt-6">
+            <h2 className="mt-4 text-4xl font-bold text-foreground">
               Find Your Answer
             </h2>
-
-            <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
               Browse through the frequently asked questions below.
               Click any question to reveal its answer.
             </p>
-
           </div>
 
-          <div className="space-y-5">
-
+          <div className="space-y-4">
             {faqs.map((faq, index) => (
-
-              <div
+              <motion.div
                 key={index}
-                className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.03 }}
+                className="rounded-2xl border border-border bg-card shadow-soft overflow-hidden hover:shadow-md transition"
               >
-
                 <button
                   type="button"
-                  onClick={() =>
-                    setOpenIndex(openIndex === index ? -1 : index)
-                  }
-                  className="w-full flex justify-between items-center text-left px-6 py-5 hover:bg-gray-50 transition"
+                  onClick={() => setOpenIndex(openIndex === index ? -1 : index)}
+                  className="w-full flex justify-between items-center text-left px-6 py-5 hover:bg-slate-50 transition"
                 >
-
-                  <div>
-
-                    <span className="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  <div className="flex-1 pr-4">
+                    <span className="inline-block rounded-full bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1">
                       {faq.category}
                     </span>
-
-                    <h3 className="mt-3 text-xl font-bold text-gray-800">
+                    <h3 className="mt-2 text-lg font-semibold text-foreground">
                       {faq.question}
                     </h3>
-
                   </div>
-
-                  <div className="text-3xl text-red-600 font-bold">
-                    {openIndex === index ? "−" : "+"}
-                  </div>
-
+                  <motion.div
+                    animate={{ rotate: openIndex === index ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex-shrink-0 text-muted-foreground"
+                  >
+                    <ChevronDown className="size-5" />
+                  </motion.div>
                 </button>
 
-                {openIndex === index && (
-
-                  <div className="px-6 pb-6">
-
-                    <div className="border-t pt-5">
-
-                      <p className="text-gray-600 leading-8">
-                        {faq.answer}
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                )}
-
-              </div>
-
+                <AnimatePresence>
+                  {openIndex === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="px-6 pb-6"
+                    >
+                      <div className="border-t border-border pt-4">
+                        <p className="text-muted-foreground leading-relaxed">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             ))}
-
           </div>
-
         </div>
-
       </section>
 
-            {/* ================= QUICK FACTS ================= */}
-
-      <section className="py-24 bg-slate-100">
-
+      {/* ================= QUICK FACTS ================= */}
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
-
           <div className="text-center mb-16">
-
-            <span className="inline-block bg-white px-4 py-2 rounded-full text-red-600 font-semibold shadow">
+            <span className="inline-block rounded-full bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-700 uppercase tracking-wider">
               LifeLink Overview
             </span>
-
-            <h2 className="text-4xl font-bold text-gray-900 mt-6">
+            <h2 className="mt-4 text-4xl font-bold text-foreground">
               Supporting Communities Through Blood Donation
             </h2>
-
-            <p className="mt-6 text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
               LifeLink provides a modern platform that connects blood
               donors, patients, hospitals, and administrators,
               helping save lives through faster communication and
               efficient emergency response.
             </p>
-
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-
-            <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition">
-
-              <div className="text-5xl mb-4">
-                👥
-              </div>
-
-              <h3 className="text-4xl font-bold text-blue-700">
-                500+
-              </h3>
-
-              <p className="mt-3 text-gray-600">
-                Registered Donors
-              </p>
-
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition">
-
-              <div className="text-5xl mb-4">
-                🩸
-              </div>
-
-              <h3 className="text-4xl font-bold text-blue-700">
-                120+
-              </h3>
-
-              <p className="mt-3 text-gray-600">
-                Blood Requests
-              </p>
-
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition">
-
-              <div className="text-5xl mb-4">
-                🏥
-              </div>
-
-              <h3 className="text-4xl font-bold text-blue-700">
-                25+
-              </h3>
-
-              <p className="mt-3 text-gray-600">
-                Partner Hospitals
-              </p>
-
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition">
-
-              <div className="text-5xl mb-4">
-                🚑
-              </div>
-
-              <h3 className="text-4xl font-bold text-blue-700">
-                24/7
-              </h3>
-
-              <p className="mt-3 text-gray-600">
-                Emergency Support
-              </p>
-
-            </div>
-
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {stats.map((item, i) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="group rounded-2xl border border-border bg-slate-50 p-8 text-center hover:shadow-xl transition hover:-translate-y-1"
+              >
+                <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
+                  {item.icon}
+                </div>
+                <div className="text-3xl font-extrabold text-red-600">{item.value}</div>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">{item.label}</p>
+              </motion.div>
+            ))}
           </div>
-
         </div>
-
       </section>
 
       {/* ================= NEED MORE HELP ================= */}
-
-      <section className="py-24 bg-white">
-
+      <section className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
-
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-
-            <div>
-
-              <span className="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full font-semibold">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <span className="inline-block rounded-full bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-700 uppercase tracking-wider">
                 Need More Help?
               </span>
-
-              <h2 className="text-4xl font-bold text-gray-900 mt-6">
+              <h2 className="mt-4 text-4xl font-bold text-foreground">
                 Our Support Team Is Ready To Assist You
               </h2>
-
-              <p className="mt-6 text-lg text-gray-600 leading-8">
+              <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
                 If you cannot find the answer you're looking for,
                 don't worry. Our LifeLink support team is available
                 to assist donors, patients, hospitals, healthcare
                 professionals, and system administrators.
               </p>
-
-              <div className="mt-10 space-y-6">
-
-                <div className="flex items-start gap-4">
-
-                  <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-2xl">
-                    📞
+              <div className="mt-10 space-y-4">
+                {[
+                  { icon: <Phone className="size-5" />, title: "Phone Support", value: "+254 729 667 133" },
+                  { icon: <Mail className="size-5" />, title: "Email Support", value: "lifelink.bloodsystem@gmail.com" },
+                  { icon: <MapPin className="size-5" />, title: "Office Location", value: "Garissa, Kenya" },
+                ].map((item) => (
+                  <div key={item.title} className="flex items-start gap-4">
+                    <div className="inline-flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground">{item.value}</p>
+                    </div>
                   </div>
-
-                  <div>
-
-                    <h3 className="font-bold text-xl text-gray-800">
-                      Phone Support
-                    </h3>
-
-                    <p className="text-gray-600 mt-2">
-                      +254 729 667 133
-                    </p>
-
-                  </div>
-
-                </div>
-
-                <div className="flex items-start gap-4">
-
-                  <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center text-2xl">
-                    📧
-                  </div>
-
-                  <div>
-
-                    <h3 className="font-bold text-xl text-gray-800">
-                      Email Support
-                    </h3>
-
-                    <p className="text-gray-600 mt-2">
-                      lifelink.bloodsystem@gmail.com
-                    </p>
-
-                  </div>
-
-                </div>
-
-                <div className="flex items-start gap-4">
-
-                  <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center text-2xl">
-                    📍
-                  </div>
-
-                  <div>
-
-                    <h3 className="font-bold text-xl text-gray-800">
-                      Office Location
-                    </h3>
-
-                    <p className="text-gray-600 mt-2">
-                      Garissa, Kenya
-                    </p>
-
-                  </div>
-
-                </div>
-
+                ))}
               </div>
+            </motion.div>
 
-            </div>
-
-            <div className="bg-slate-800 rounded-3xl p-10 text-white shadow-xl">
-
-              <div className="text-6xl mb-6">
-                ❤️
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="rounded-3xl border border-border bg-card p-10 shadow-soft"
+            >
+              <div className="mb-6 inline-flex size-14 items-center justify-center rounded-2xl bg-red-600/10 text-red-600">
+                <Heart className="size-7" />
               </div>
-
-              <h2 className="text-3xl font-bold">
+              <h2 className="text-3xl font-bold text-foreground">
                 Every Donation Matters
               </h2>
-
-              <p className="mt-6 text-gray-300 leading-8">
+              <p className="mt-4 text-muted-foreground leading-relaxed">
                 A single blood donation can help save multiple lives.
                 By becoming a donor through LifeLink, you become part
                 of a growing community dedicated to saving lives every
                 single day.
               </p>
-
-              <div className="mt-10 space-y-4">
-
-                <div className="flex items-center gap-3">
-                  <span className="text-green-400">✔</span>
-                  <span>Verified donor registration</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-green-400">✔</span>
-                  <span>Real-time emergency requests</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-green-400">✔</span>
-                  <span>Hospital collaboration</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-green-400">✔</span>
-                  <span>Secure communication platform</span>
-                </div>
-
+              <div className="mt-8 space-y-3">
+                {[
+                  "Verified donor registration",
+                  "Real-time emergency requests",
+                  "Hospital collaboration",
+                  "Secure communication platform",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-3">
+                    <CheckCircle className="size-4 text-green-600 flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">{item}</span>
+                  </div>
+                ))}
               </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
+      {/* ================= CTA ================= */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 soft-grid-bg opacity-60" aria-hidden />
+        <div className="absolute inset-x-0 -bottom-32 -z-10 h-[420px] bg-gradient-to-t from-red-600/20 to-transparent" aria-hidden />
+        <div className="max-w-5xl mx-auto px-6 py-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mx-auto max-w-3xl rounded-3xl border border-border bg-card p-10 shadow-soft"
+          >
+            <div className="mx-auto mb-6 inline-flex size-16 items-center justify-center rounded-2xl bg-red-600/10 text-red-600">
+              <Sparkles className="size-8" />
             </div>
-
-          </div>
-
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Together We Can Save More Lives
+            </h2>
+            <p className="mt-4 text-muted-foreground leading-relaxed">
+              Join LifeLink today and become part of a trusted community
+              connecting blood donors, patients, hospitals, and healthcare
+              professionals across Kenya.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 px-8 py-3 rounded-full font-semibold text-white transition shadow-lg hover:shadow-red-600/30"
+              >
+                <UserPlus className="size-4" />
+                Become a Donor
+              </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 border border-border bg-card hover:bg-accent px-8 py-3 rounded-full font-semibold text-foreground transition"
+              >
+                Contact Support
+              </Link>
+            </div>
+          </motion.div>
         </div>
-
       </section>
-
-            {/* ================= CTA ================= */}
-
-      <section className="bg-gradient-to-r from-slate-900 via-slate-800 to-red-700 text-white py-24">
-
-        <div className="max-w-5xl mx-auto px-6 text-center">
-
-          <span className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full font-semibold mb-6">
-            Join the LifeLink Community
-          </span>
-
-          <h2 className="text-5xl font-bold leading-tight">
-            Together We Can Save More Lives
-          </h2>
-
-          <p className="mt-6 text-xl text-gray-200 leading-8 max-w-3xl mx-auto">
-            Join LifeLink today and become part of a trusted community
-            connecting blood donors, patients, hospitals, and healthcare
-            professionals across Kenya.
-          </p>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-6">
-
-            <Link
-              to="/register"
-              className="inline-flex items-center justify-center
-                         bg-white
-                         text-red-700
-                         px-8
-                         py-4
-                         rounded-xl
-                         font-bold
-                         shadow-lg
-                         hover:bg-gray-100
-                         hover:shadow-2xl
-                         transition-all
-                         duration-300"
-            >
-              Become a Donor
-            </Link>
-
-            <Link
-              to="/contact"
-              className="inline-flex items-center justify-center
-                         border-2
-                         border-white
-                         text-white
-                         px-8
-                         py-4
-                         rounded-xl
-                         font-bold
-                         hover:bg-white
-                         hover:text-slate-900
-                         transition-all
-                         duration-300"
-            >
-              Contact Support
-            </Link>
-
-          </div>
-
-        </div>
-
-      </section>
-
     </div>
   );
 }

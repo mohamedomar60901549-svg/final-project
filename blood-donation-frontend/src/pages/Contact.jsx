@@ -1,7 +1,14 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import {
+  MapPin, Mail, Phone, MessageCircle, Send,
+  User, AtSign, FileText, AlignLeft, ChevronDown,
+  Sparkles, Heart, ArrowRight, CheckCircle,
+  Clock, Globe, Users, Building
+} from "lucide-react";
 
 export default function Contact() {
-
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -58,174 +65,126 @@ ${form.message}`;
     form.message;
 
   return (
-    <div className="bg-gray-50">
-
-      {/* ================= HERO SECTION ================= */}
-
-      <section className="relative bg-gradient-to-r from-slate-900 via-blue-900 to-slate-800 text-white overflow-hidden">
-
-        <div className="absolute inset-0 bg-black/40"></div>
-
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-25"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1800')",
-          }}
-        ></div>
-
-        <div className="relative max-w-7xl mx-auto px-6 py-28 text-center">
-
-          <span className="inline-block px-5 py-2 bg-white/20 rounded-full text-sm font-semibold backdrop-blur">
-            Contact LifeLink
-          </span>
-
-          <h1 className="mt-6 text-5xl md:text-6xl font-bold">
+    <div className="min-h-screen bg-background">
+      {/* ================= HERO ================= */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 soft-grid-bg opacity-60" aria-hidden />
+        <div className="absolute inset-x-0 -top-32 -z-10 h-[420px] bg-gradient-to-b from-red-600/20 to-transparent" aria-hidden />
+        <div className="container-page pt-16 pb-20 md:pt-24 md:pb-28 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground mx-auto"
+          >
+            <span className="size-1.5 rounded-full bg-red-600" /> Contact LifeLink
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="mt-6 text-5xl md:text-6xl font-extrabold text-foreground leading-tight"
+          >
             We're Here To Help
-          </h1>
-
-          <p className="mt-6 max-w-3xl mx-auto text-xl text-slate-200 leading-9">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.12 }}
+            className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+          >
             Whether you are a donor, patient, hospital or healthcare
             professional, our team is ready to assist you with blood donation,
             emergency requests, account support and general inquiries.
-          </p>
-
+          </motion.p>
         </div>
-
       </section>
 
       {/* ================= CONTACT SECTION ================= */}
-
-      <section className="py-24">
-
+      <section className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16">
-
           {/* LEFT SIDE */}
-
-          <div>
-
-            <span className="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="inline-block rounded-full bg-red-100 px-4 py-1.5 text-sm font-semibold text-red-700 uppercase tracking-wider">
               Contact Information
             </span>
-
-            <h2 className="mt-6 text-4xl font-bold text-gray-900">
+            <h2 className="mt-4 text-4xl font-bold text-foreground">
               Let's Talk
             </h2>
-
-            <p className="mt-6 text-lg text-gray-600 leading-9">
+            <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
               LifeLink is committed to improving emergency blood donation and
               healthcare services across Kenya. Feel free to contact us for
               assistance, partnerships, technical support or any project
               inquiries.
             </p>
 
-            <div className="mt-10 space-y-6">
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 flex items-start gap-5">
-
-                <div className="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center text-3xl">
-                  📍
+            <div className="mt-10 space-y-4">
+              {[
+                { icon: <MapPin className="size-5" />, title: "Office Location", value: "Garissa, Kenya", color: "blue" },
+                { icon: <Mail className="size-5" />, title: "Project Email", value: "lifelink.bloodsystem@gmail.com", link: "mailto:lifelink.bloodsystem@gmail.com", color: "green" },
+                { icon: <Phone className="size-5" />, title: "Phone & WhatsApp", value: "+254 729 667 133", link: "tel:+254729667133", color: "red" },
+              ].map((item) => (
+                <div 
+                  key={item.title}
+                  className="group rounded-2xl border border-border bg-card p-6 shadow-soft hover:shadow-xl transition hover:-translate-y-1"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="inline-flex size-11 flex-shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{item.title}</h3>
+                      {item.link ? (
+                        <a 
+                          href={item.link}
+                          className="mt-1 block text-red-600 hover:text-red-700 transition"
+                        >
+                          {item.value}
+                        </a>
+                      ) : (
+                        <p className="mt-1 text-sm text-muted-foreground">{item.value}</p>
+                      )}
+                      {item.title === "Project Email" && (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          Send us your questions, partnership requests or technical support inquiries.
+                        </p>
+                      )}
+                      {item.title === "Phone & WhatsApp" && (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          Available Monday - Saturday, 7:00 AM - 5:00 PM (EAT).
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
-
-                <div>
-
-                  <h3 className="text-xl font-bold text-gray-900">
-                    Office Location
-                  </h3>
-
-                  <p className="mt-2 text-gray-600">
-                    Garissa, Kenya
-                  </p>
-
-                </div>
-
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 flex items-start gap-5">
-
-                <div className="w-16 h-16 rounded-xl bg-green-100 flex items-center justify-center text-3xl">
-                  📧
-                </div>
-
-                <div>
-
-                  <h3 className="text-xl font-bold text-gray-900">
-                    Project Email
-                  </h3>
-
-                  <a
-                    href="mailto:lifelink.bloodsystem@gmail.com"
-                    className="mt-2 block text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    lifelink.bloodsystem@gmail.com
-                  </a>
-
-                  <p className="mt-2 text-gray-500 text-sm">
-                    Send us your questions, partnership requests or technical
-                    support inquiries.
-                  </p>
-
-                </div>
-
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-lg p-6 flex items-start gap-5">
-
-                <div className="w-16 h-16 rounded-xl bg-red-100 flex items-center justify-center text-3xl">
-                  📞
-                </div>
-
-                <div>
-
-                  <h3 className="text-xl font-bold text-gray-900">
-                    Phone & WhatsApp
-                  </h3>
-
-                  <a
-                    href="tel:+254729667133"
-                    className="mt-2 block text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    +254 729 667 133
-                  </a>
-
-                  <p className="mt-2 text-gray-500 text-sm">
-                    Available Monday - saturday, 7:00 AM - 5:00 PM (EAT). Call or send a WhatsApp message for urgent inquiries.
-                    <br />
-                    7:00 AM - 5:00 PM (EAT)
-                  </p>
-
-                </div>
-
-              </div>
-
+              ))}
             </div>
-
-          </div>
+          </motion.div>
 
           {/* RIGHT SIDE */}
-
-          <div className="bg-white rounded-3xl shadow-xl p-10">
-
-            <h2 className="text-3xl font-bold text-gray-900">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl border border-border bg-card p-10 shadow-soft"
+          >
+            <h2 className="text-3xl font-bold text-foreground">
               Send Us a Message
             </h2>
-
-            <p className="mt-4 text-gray-600">
-              Complete the form below and choose whether to send it through
-              Email or SMS.
+            <p className="mt-2 text-muted-foreground">
+              Complete the form below and choose whether to send it through Email or SMS.
             </p>
 
-            <form
-              onSubmit={handleSubmit}
-              className="mt-8 space-y-6"
-            >
-
-                            <div>
-
-                <label className="block text-gray-700 font-medium mb-2">
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <User className="inline size-4 mr-2 text-muted-foreground" />
                   Full Name
                 </label>
-
                 <input
                   type="text"
                   name="name"
@@ -233,17 +192,15 @@ ${form.message}`;
                   onChange={handleChange}
                   required
                   placeholder="Enter your full name"
-                  className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition"
                 />
-
               </div>
 
               <div>
-
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <AtSign className="inline size-4 mr-2 text-muted-foreground" />
                   Email Address
                 </label>
-
                 <input
                   type="email"
                   name="email"
@@ -251,17 +208,15 @@ ${form.message}`;
                   onChange={handleChange}
                   required
                   placeholder="Enter your email"
-                  className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition"
                 />
-
               </div>
 
               <div>
-
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <FileText className="inline size-4 mr-2 text-muted-foreground" />
                   Subject
                 </label>
-
                 <input
                   type="text"
                   name="subject"
@@ -269,50 +224,39 @@ ${form.message}`;
                   onChange={handleChange}
                   required
                   placeholder="Message subject"
-                  className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition"
                 />
-
               </div>
 
               <div>
-
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <AlignLeft className="inline size-4 mr-2 text-muted-foreground" />
                   Message
                 </label>
-
                 <textarea
-                  rows="6"
+                  rows="5"
                   name="message"
                   value={form.message}
                   onChange={handleChange}
                   required
                   placeholder="Write your message..."
-                  className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition resize-none"
                 ></textarea>
-
               </div>
 
               <div>
-
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <Send className="inline size-4 mr-2 text-muted-foreground" />
                   Send Via
                 </label>
-
                 <select
                   value={sendMethod}
                   onChange={(e) => setSendMethod(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-5 py-4 focus:ring-2 focus:ring-blue-600 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition"
                 >
-                  <option value="email">
-                    📧 Email
-                  </option>
-
-                  <option value="sms">
-                    💬 SMS
-                  </option>
-
+                  <option value="email">📧 Email</option>
+                  <option value="sms">💬 SMS</option>
                 </select>
-
               </div>
 
               <button
@@ -320,62 +264,95 @@ ${form.message}`;
                 disabled={!formComplete}
                 className={`w-full py-4 rounded-xl font-semibold transition ${
                   formComplete
-                    ? "bg-blue-700 hover:bg-blue-800 text-white"
-                    : "bg-gray-400 text-white cursor-not-allowed"
+                    ? "bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-red-600/30"
+                    : "bg-muted text-muted-foreground cursor-not-allowed"
                 }`}
               >
-                {sendMethod === "email"
-                  ? "📧 Send via Email"
-                  : "💬 Send via SMS"}
+                {sendMethod === "email" ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Send className="size-4" />
+                    Send via Email
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <MessageCircle className="size-4" />
+                    Send via SMS
+                  </span>
+                )}
               </button>
-
             </form>
-
-          </div>
-
+          </motion.div>
         </div>
+      </section>
 
+      {/* ================= QUICK RESPONSE ================= */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { icon: <Clock className="size-6" />, title: "Quick Response", desc: "We respond to all inquiries within 24 hours." },
+              { icon: <Heart className="size-6" />, title: "24/7 Emergency", desc: "Emergency blood requests are handled immediately." },
+              { icon: <Users className="size-6" />, title: "Expert Support", desc: "Our team is trained to assist with all blood donation needs." },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="group rounded-2xl border border-border bg-slate-50 p-8 text-center hover:shadow-xl transition hover:-translate-y-1"
+              >
+                <div className="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition">
+                  {item.icon}
+                </div>
+                <h3 className="font-semibold text-foreground">{item.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ================= CTA ================= */}
-
-      <section className="bg-slate-900 text-white py-20">
-
-        <div className="max-w-5xl mx-auto px-6 text-center">
-
-          <h2 className="text-4xl font-bold">
-            Together We Can Save More Lives
-          </h2>
-
-          <p className="mt-6 text-lg text-slate-300 leading-8">
-            Every blood donation has the power to save lives. Join LifeLink
-            today and become part of Kenya's growing network of voluntary blood
-            donors, hospitals and healthcare professionals.
-          </p>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-6">
-
-            <a
-              href="mailto:lifelink.bloodsystem@gmail.com"
-              className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl font-semibold transition"
-            >
-              Email Us
-            </a>
-
-            <a
-              href="tel:+254729667133"
-              className="border border-white px-8 py-4 rounded-xl hover:bg-white hover:text-slate-900 transition"
-            >
-              Call Now
-            </a>
-
-          </div>
-
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 -z-10 soft-grid-bg opacity-60" aria-hidden />
+        <div className="absolute inset-x-0 -bottom-32 -z-10 h-[420px] bg-gradient-to-t from-red-600/20 to-transparent" aria-hidden />
+        <div className="max-w-5xl mx-auto px-6 py-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mx-auto max-w-3xl rounded-3xl border border-border bg-card p-10 shadow-soft"
+          >
+            <div className="mx-auto mb-6 inline-flex size-16 items-center justify-center rounded-2xl bg-red-600/10 text-red-600">
+              <Sparkles className="size-8" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Together We Can Save More Lives
+            </h2>
+            <p className="mt-4 text-muted-foreground leading-relaxed">
+              Every blood donation has the power to save lives. Join LifeLink
+              today and become part of Kenya's growing network of voluntary blood
+              donors, hospitals and healthcare professionals.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <a
+                href="mailto:lifelink.bloodsystem@gmail.com"
+                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 px-8 py-3 rounded-full font-semibold text-white transition shadow-lg hover:shadow-red-600/30"
+              >
+                <Mail className="size-4" />
+                Email Us
+              </a>
+              <a
+                href="tel:+254729667133"
+                className="inline-flex items-center gap-2 border border-border bg-card hover:bg-accent px-8 py-3 rounded-full font-semibold text-foreground transition"
+              >
+                <Phone className="size-4" />
+                Call Now
+              </a>
+            </div>
+          </motion.div>
         </div>
-
       </section>
-
     </div>
   );
-
 }
