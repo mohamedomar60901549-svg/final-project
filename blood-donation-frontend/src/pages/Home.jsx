@@ -51,7 +51,8 @@ function Home() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-8 flex flex-wrap gap-3"
+              className="mt-8 flex flex-wrap gap-3" 
+              
             >
               <Link
                 to="/register"
@@ -289,8 +290,8 @@ function Home() {
               <div>
                 <h4 className="font-semibold text-foreground">Universal Donor & Recipient</h4>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  <span className="font-bold text-red-600">O-</span> is the universal donor — their blood can be given to anyone. 
-                  <span className="font-bold text-red-600"> AB+</span> is the universal recipient — they can receive blood from anyone.
+                  <span className="font-bold text-red-600">O-</span> is the universal donor their blood can be given to anyone. 
+                  <span className="font-bold text-red-600"> AB+</span> is the universal recipient they can receive blood from anyone.
                 </p>
               </div>
             </div>
@@ -525,9 +526,9 @@ function Home() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {[
-              { name: "Ahmed Hassan", role: "Blood Donor", icon: <Droplets className="size-7" />, text: "LifeLink made donating blood simple and organized. Knowing I helped save someone's life is an unforgettable feeling." },
+              { name: "Abdiwahab Suleiman", role: "Blood Donor", icon: <Droplets className="size-7" />, text: "LifeLink made donating blood simple and organized. Knowing I helped save someone's life is an unforgettable feeling." },
               { name: "Fatuma Ali", role: "Blood Recipient", icon: <Heart className="size-7" />, text: "When my family urgently needed blood, compatible donors were found quickly through LifeLink. We are forever grateful." },
-              { name: "Dr. John Mwangi", role: "Medical Officer", icon: <Stethoscope className="size-7" />, text: "LifeLink has greatly improved coordination between hospitals and volunteer blood donors during emergencies." },
+              { name: "Dr. Yussuf Gab", role: "Medical Officer", icon: <Stethoscope className="size-7" />, text: "LifeLink has greatly improved coordination between hospitals and volunteer blood donors during emergencies." },
             ].map((person, i) => (
               <motion.div
                 key={person.name}
