@@ -77,6 +77,7 @@ function Login() {
           body: JSON.stringify({
             email: formData.email,
             password: formData.password,
+            // Send the role to the backend for validation
             role: formData.role,
           }),
         }
@@ -85,6 +86,16 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
+        // Check if the returned role matches the selected role
+        if (data.user.role !== formData.role) {
+          setSuccess(false);
+          setMessage(
+            `❌ Invalid login attempt. You registered as a ${data.user.role} but tried to login as a ${formData.role}. Please select the correct account type.`
+          );
+          setLoading(false);
+          return;
+        }
+
         localStorage.setItem("token", data.token);
         localStorage.setItem(
           "user",

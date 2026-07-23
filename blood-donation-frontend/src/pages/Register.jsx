@@ -342,6 +342,7 @@ function Register() {
                     <option value="">Select Account Type</option>
                     <option value="donor">🩸 Donor</option>
                     <option value="patient">🏥 Patient</option>
+                    <option value="admin">👨‍💼 Administrator</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                 </div>
