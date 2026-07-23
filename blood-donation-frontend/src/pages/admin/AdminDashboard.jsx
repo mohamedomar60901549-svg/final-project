@@ -86,10 +86,10 @@ function AdminDashboard() {
 
       // Simulate recent activity
       const activities = [
-        { id: 1, user: "John Doe", action: "registered as donor", time: "5 min ago", type: "donor" },
-        { id: 2, user: "Jane Smith", action: "requested blood (O+)", time: "15 min ago", type: "request" },
-        { id: 3, user: "Mike Johnson", action: "completed donation", time: "1 hour ago", type: "donation" },
-        { id: 4, user: "Sarah Williams", action: "updated profile", time: "2 hours ago", type: "profile" },
+        { id: 1, user: "Maslah Hussein", action: "registered as donor", time: "5 min ago", type: "donor" },
+        { id: 2, user: "Mohamed Omar", action: "requested blood (O+)", time: "15 min ago", type: "request" },
+        { id: 3, user: "Aden Ahmed", action: "completed donation", time: "1 hour ago", type: "donation" },
+  
       ];
       setRecentActivity(activities);
 

@@ -248,16 +248,16 @@ export default function Hospitals() {
               Featured Hospital
             </span>
             <h2 className="mt-4 text-4xl md:text-5xl font-bold text-white">
-              Garissa County Referral Hospital
+              Garissa Level 5 Teaching and Referral Hospital
             </h2>
             <p className="mt-6 text-lg text-white/80 leading-relaxed">
-              Located in North Eastern Kenya, Garissa County Referral Hospital
+              Located in North Eastern Kenya, Garissa Level 5 Teaching and Referral Hospital
               serves thousands of patients every year and plays a critical role
               in emergency healthcare, maternity services, surgery, trauma
               response and blood transfusion services.
             </p>
             <p className="mt-4 text-white/70 leading-relaxed">
-              Through LifeLink, hospitals like Garissa County Referral Hospital
+              Through LifeLink, hospitals like Garissa Level 5 Teaching and Referral Hospital
               can quickly identify compatible blood donors, reduce emergency
               response time and improve patient survival.
             </p>
